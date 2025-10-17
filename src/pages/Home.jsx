@@ -8,7 +8,7 @@ const Home = () => {
           Din webbläsare stöder inte video-taggen.
         </video>
         <div className="container hero-content">
-          <h1>Upptäck en smartare vardag</h1>
+          <h1>Upptäckkkkkkkk en smartare vardag</h1>
           <p>Upplev noggrant utvald teknik, personlig service och sömlösa reparationer – både online och i butik. Med rum för lugn, omtanke och val som känns rätt.</p>
           <div className="hero-buttons">
             <a href="e-butik.html" className="cta-button tertiary">Utforska e-Butiken</a>
