@@ -1002,3 +1002,16 @@ footer {
   }
 }
 
+@media (min-width: 901px) {
+  .header-right {
+    gap: 40px; 
+  }
+}
+
+/* Gäller endast för skärmar smalare än 900px */
+@media (max-width: 900px) {
+  .logo-text {
+    font-size: 1.1em; 
+    white-space: nowrap; 
+  }
+}
