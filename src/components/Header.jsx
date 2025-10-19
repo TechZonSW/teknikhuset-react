@@ -1,65 +1,95 @@
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, NavLink } from 'react-router-dom';
+import { List, X, ShoppingCartSimple, CaretDown } from 'phosphor-react';
 
 const Header = () => {
-  const location = useLocation();
+  // State för att hantera mobilmenyns synlighet (öppen/stängd)
+  const [isMobileNavOpen, setMobileNavOpen] = useState(false);
+  
+  // State för att hantera dropdown-menyns synlighet
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  
+  // State för att veta om sidan har scrollats (för att lägga till skugga på headern)
+  const [scrolled, setScrolled] = useState(false);
 
-  // Function to check if a path is active
-  const isActive = (path) => {
-    return location.pathname === path ? 'active' : '';
+  // Funktion för att växla (öppna/stänga) mobilmenyn
+  const toggleMobileNav = () => {
+    setMobileNavOpen(!isMobileNavOpen);
+    // Stäng dropdown om mobilmenyn öppnas/stängs
+    if (isDropdownOpen) setDropdownOpen(false); 
+  };
+  
+  // Funktion för att växla dropdown-menyn
+  const toggleDropdown = () => {
+    setDropdownOpen(!isDropdownOpen);
   };
 
+  // Funktion för att stänga båda menyerna, t.ex. när man klickar på en länk
+  const closeMenus = () => {
+    setMobileNavOpen(false);
+    setDropdownOpen(false);
+  };
+
+  // Effekt som kollar om användaren scrollar
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    // Städa upp event listener när komponenten försvinner
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header>
-      <div className="container header-container">
-        <Link to="/" className="logo">
-          {/* Se till att bild-sökvägen stämmer. Lägg bilder i public/-mappen */}
-          <img src="xPublic/bilder/logo.png" alt="TEKNIKHUSET KALMAR" className="logo-img" />
+    // Lägger till 'scrolled'-klassen på headern när man scrollat lite
+    <header className={scrolled ? 'scrolled' : ''}>
+      <div className="container">
+        {/* Logotypen, klick leder till startsidan och stänger menyerna */}
+        <Link to="/" className="logo" onClick={closeMenus}>
+          {/* FIX: Sökvägen till bilder i 'public'-mappen ska starta med '/' */}
+          <img src="logo.png" alt="TEKNIKHUSET KALMAR" className="logo-img" />
         </Link>
+        
         <div className="header-right">
-          <nav>
-            <ul className="desktop-nav">
-              <li>
-                <Link to="/" className={isActive('/')}>
-                  Hem
-                </Link>
-              </li>
+          {/* Navigering för datorer */}
+          <nav className={isMobileNavOpen ? 'mobile-nav-active' : ''}>
+            <ul>
+              <li><NavLink to="/" onClick={closeMenus}>Hem</NavLink></li>
+              
+              {/* Dropdown för e-Butik */}
               <li className="dropdown">
-                <Link to="/e-butik" className={isActive('/e-butik')}>
-                  e-Butik <i className="ph ph-caret-down"></i>
-                </Link>
-                {/* Dropdown-logik behöver återskapas i React */}
+                {/* Använder en knapp för att kunna kontrollera dropdown */}
+                <button onClick={toggleDropdown} className={isDropdownOpen ? 'active' : ''}>
+                  e-Butik <CaretDown size={16} />
+                </button>
+                {isDropdownOpen && (
+                  <ul className="dropdown-menu">
+                    <li><Link to="/e-butik/mobiler" onClick={closeMenus}>Mobiler</Link></li>
+                    <li><Link to="/e-butik/datorer" onClick={closeMenus}>Datorer</Link></li>
+                    <li><Link to="/e-butik/tillbehor" onClick={closeMenus}>Tillbehör</Link></li>
+                  </ul>
+                )}
               </li>
-              <li>
-                <Link to="/reparation" className={isActive('/reparation')}>
-                  Reparation
-                </Link>
-              </li>
-              <li>
-                <Link to="/priser" className={isActive('/priser')}>
-                  Priser
-                </Link>
-              </li>
-              <li>
-                <Link to="/vardering" className={isActive('/vardering')}>
-                  Sälj/Byt In
-                </Link>
-              </li>
-              <li>
-                <Link to="/kontakt" className={isActive('/kontakt')}>
-                  Om Oss
-                </Link>
-              </li>
+
+              <li><NavLink to="/reparation" onClick={closeMenus}>Reparation</NavLink></li>
+              <li><NavLink to="/priser" onClick={closeMenus}>Priser</NavLink></li>
+              <li><NavLink to="/vardering" onClick={closeMenus}>Sälj/Byt In</NavLink></li>
+              <li><NavLink to="/kontakt" onClick={closeMenus}>Om Oss</NavLink></li>
             </ul>
           </nav>
+          
           <div className="header-actions">
-            <div id="cart-icon-container" className="cart-icon-container">
-              <Link to="/kassa">
-                <i className="ph ph-shopping-cart-simple"></i>
-                <span id="cart-count" className="cart-count" style={{ display: 'none' }}>0</span>
+            <div className="cart-icon-container">
+              <Link to="/kassa" aria-label="Varukorg">
+                <ShoppingCartSimple size={24} />
+                {/* Framtida logik för att visa antal varor kan läggas här */}
+                {/* <span className="cart-count">0</span> */}
               </Link>
             </div>
-            <button id="mobile-menu-toggle" className="mobile-menu-toggle">
-              <i className="ph-bold ph-list"></i>
+            
+            {/* Hamburgare-knapp som bara syns på mobilen (via CSS) */}
+            <button className="mobile-menu-toggle" onClick={toggleMobileNav} aria-label="Växla meny">
+              {isMobileNavOpen ? <X size={32} /> : <List size={32} />}
             </button>
           </div>
         </div>
