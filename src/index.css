@@ -1011,7 +1011,7 @@ footer {
 /* Gäller endast för skärmar smalare än 900px */
 @media (max-width: 900px) {
   .logo-text {
-    font-size: 1.1em; 
+    font-size: 0.5em; 
     white-space: nowrap; 
   }
 }
