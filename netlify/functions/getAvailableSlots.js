@@ -1,10 +1,18 @@
 const { google } = require('googleapis');
 
 // --- AUTH & NYCKELHANTERING ---
+// --- AUTH & NYCKELHANTERING ---
 const getPrivateKey = () => {
   const key = process.env.GOOGLE_PRIVATE_KEY;
   if (!key) return null;
-  return key.replace(/\\n/g, '\n').replace(/"/g, '');
+  
+  // 1. Ta bort ALLA citattecken
+  let cleanKey = key.replace(/['"]/g, '');
+
+  // 2. Fixa radbrytningar
+  cleanKey = cleanKey.replace(/\\n/g, '\n');
+
+  return cleanKey;
 };
 
 const createAuthClient = () => {
