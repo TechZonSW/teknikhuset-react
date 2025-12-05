@@ -1,155 +1,169 @@
 const { google } = require('googleapis');
 
-// Business hours setup
-const BUSINESS_HOURS = {
-  start: 9, // 09:00
-  end: 18,  // 18:00
-  slotDuration: 30 // minutes
-};
-
-// Robust funktion för att hantera Private Key
+// --- AUTH & NYCKELHANTERING ---
 const getPrivateKey = () => {
   const key = process.env.GOOGLE_PRIVATE_KEY;
   if (!key) return null;
-  // Ersätt bokstavliga \n med riktiga radbrytningar och ta bort eventuella citattecken
   return key.replace(/\\n/g, '\n').replace(/"/g, '');
 };
 
 const createAuthClient = () => {
   const privateKey = getPrivateKey();
+  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   
-  if (!privateKey) throw new Error('Private Key missing');
+  if (!privateKey || !clientEmail) throw new Error('Auth Config Error');
 
   return new google.auth.JWT({
-    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    email: clientEmail,
     key: privateKey,
     scopes: ['https://www.googleapis.com/auth/calendar'],
   });
 };
 
-// Generera tidsluckor (HH:mm)
-const generateTimeSlots = (startHour, endHour, slotDuration) => {
-  const slots = [];
-  for (let hour = startHour; hour < endHour; hour++) {
-    for (let minute = 0; minute < 60; minute += slotDuration) {
-      const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-      slots.push(timeStr);
-    }
-  }
-  return slots;
+// --- HJÄLPMATEMATIK ---
+
+const timeToMinutes = (timeStr) => {
+  const [h, m] = timeStr.split(':').map(Number);
+  return h * 60 + m;
 };
 
-// Hämta bokade tider med korrekt tidszon (Stockholm)
-const getBookedSlots = async (auth, calendarId, dateString) => {
-  try {
-    const calendar = google.calendar({ version: 'v3', auth });
-    
-    // Sätt tidsintervall för hela dygnet i lokal tid
-    // Vi skickar ISO-strängar men låter Google hantera tidszonen via timeMin/timeMax
-    // Enklast: Sök brett (UTC) och filtrera sen
-    const startOfDay = new Date(`${dateString}T00:00:00.000+01:00`); // Approximation för sökning
-    const endOfDay = new Date(`${dateString}T23:59:59.000+01:00`);
-    
-    // Justera sökfönstret för att vara säker på att få med allt (UTC-12 till UTC+14)
-    // Det viktiga är att vi filtrerar rätt nedan.
-    
-    const response = await calendar.events.list({
-      calendarId: calendarId,
-      timeMin: new Date(startOfDay.getTime() - 86400000).toISOString(), // Ta i lite extra bakåt
-      timeMax: new Date(endOfDay.getTime() + 86400000).toISOString(),   // Ta i lite extra framåt
-      singleEvents: true,
-      orderBy: 'startTime',
-      timeZone: 'Europe/Stockholm' // Be Google räkna i svensk tid
-    });
-    
-    const bookedSlots = [];
-    
-    if (response.data.items) {
-      response.data.items.forEach(event => {
-        if (event.start.dateTime) {
-          // Här är magin: Konvertera eventets tid specifikt till Svensk tid sträng (HH:mm)
-          // oavsett vad servern (Netlify) har för tidszon.
-          const eventDate = new Date(event.start.dateTime);
-          
-          // Kolla så att eventet faktiskt är på rätt dag (eftersom vi vidgade sökfönstret)
-          const eventDayString = eventDate.toLocaleDateString('sv-SE', {
-            timeZone: 'Europe/Stockholm'
-          });
+const minutesToTime = (totalMinutes) => {
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
 
-          if (eventDayString === dateString) {
-             const timeStr = eventDate.toLocaleTimeString('sv-SE', {
-              timeZone: 'Europe/Stockholm',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
-            });
-            // "09:00" format
-            bookedSlots.push(timeStr);
-          }
-        }
-      });
-    }
-    
-    console.log('Booked slots (Stockholm time):', bookedSlots);
-    return bookedSlots;
-  } catch (error) {
-    console.error('Error fetching calendar events:', error);
-    throw error;
+// --- LOGIK FÖR ÖPPETTIDER ---
+
+const getOpeningHours = (dateString) => {
+  // dateString är "2025-12-06"
+  const date = new Date(dateString);
+  const day = date.getDay(); // 0 = Söndag, 1 = Måndag... 6 = Lördag
+  
+  // Helg (Lördag 6, Söndag 0)
+  if (day === 0 || day === 6) {
+    return { start: 10, end: 18 }; // 10:00 - 18:00
   }
+  
+  // Vardagar (Måndag-Fredag)
+  return { start: 9, end: 20 }; // 09:00 - 20:00
+};
+
+const STEP_INTERVAL = 15; // Vi kollar tider var 15:e minut
+
+// --- HUVUDLOGIK ---
+
+const getBusyIntervals = async (auth, calendarId, dateString) => {
+  const calendar = google.calendar({ version: 'v3', auth });
+  
+  const timeMin = `${dateString}T00:00:00Z`;
+  const timeMax = `${dateString}T23:59:59Z`;
+
+  const response = await calendar.events.list({
+    calendarId: calendarId,
+    timeMin: timeMin,
+    timeMax: timeMax,
+    singleEvents: true,
+    orderBy: 'startTime',
+  });
+
+  const busyIntervals = [];
+
+  if (response.data.items) {
+    response.data.items.forEach(event => {
+      if (event.start.dateTime && event.end.dateTime) {
+        // Konvertera start/slut till Svensk tid strängar
+        const startStr = new Date(event.start.dateTime).toLocaleTimeString('sv-SE', {
+          timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit', hour12: false
+        });
+        const endStr = new Date(event.end.dateTime).toLocaleTimeString('sv-SE', {
+          timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit', hour12: false
+        });
+
+        busyIntervals.push({
+          start: timeToMinutes(startStr),
+          end: timeToMinutes(endStr)
+        });
+      }
+    });
+  }
+  return busyIntervals;
 };
 
 exports.handler = async (event) => {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json'
+  };
+
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   try {
-    const { date } = JSON.parse(event.body);
-    
-    if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      return { statusCode: 400, body: JSON.stringify({ success: false, error: 'Invalid date format' }) };
+    const { date, duration } = JSON.parse(event.body);
+
+    if (!date || !duration) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing date or duration' }) };
     }
 
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
-    const serviceAccountEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-    const privateKey = process.env.GOOGLE_PRIVATE_KEY;
-
-    if (!calendarId || !serviceAccountEmail || !privateKey) {
-      console.error('Missing env vars');
-      return { statusCode: 500, body: JSON.stringify({ success: false, error: 'Configuration error' }) };
-    }
-
     const auth = createAuthClient();
 
-    const allSlots = generateTimeSlots(
-      BUSINESS_HOURS.start,
-      BUSINESS_HOURS.end,
-      BUSINESS_HOURS.slotDuration
-    );
+    // 1. Hämta alla bokade intervaller
+    const busySlots = await getBusyIntervals(auth, calendarId, date);
+    
+    // 2. Bestäm öppettider för dagen
+    const hours = getOpeningHours(date);
+    const dayStart = hours.start * 60; 
+    const dayEnd = hours.end * 60;     
 
-    const bookedSlots = await getBookedSlots(auth, calendarId, date);
+    const availableSlots = [];
 
-    // Filtrera bort bokade tider
-    const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
+    // 3. Loopa genom dagen
+    for (let currentTime = dayStart; currentTime < dayEnd; currentTime += STEP_INTERVAL) {
+      
+      const potentialStart = currentTime;
+      const potentialEnd = currentTime + duration;
+
+      // Kollar om tjänsten hinner avslutas innan vi stänger
+      // Om du vill att man ska kunna boka 19:30 för en 30min tjänst (slutar 20:00) => Använd <=
+      // Om du vill att man ska vara ute ur butiken 20:00 => Använd <=
+      if (potentialEnd > dayEnd) {
+        continue; 
+      }
+
+      // Kollar krockar
+      const hasConflict = busySlots.some(busy => {
+        return (potentialStart < busy.end) && (potentialEnd > busy.start);
+      });
+
+      if (!hasConflict) {
+        availableSlots.push(minutesToTime(potentialStart));
+      }
+    }
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         success: true,
-        availableSlots,
-        bookedSlots, // Bra för debugging
-        date
+        availableSlots: availableSlots,
+        openingHours: `${hours.start}:00 - ${hours.end}:00`
       })
     };
+
   } catch (error) {
-    console.error('Handler error:', error);
+    console.error('Error fetching slots:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ 
-        success: false, 
-        error: error.message || 'Failed to fetch slots'
-      })
+      headers,
+      body: JSON.stringify({ success: false, error: 'Kunde inte hämta tider.' })
     };
   }
 };
