@@ -1,16 +1,25 @@
 const { google } = require('googleapis');
 
-// Business hours (you can customize these)
+// Business hours setup
 const BUSINESS_HOURS = {
   start: 9, // 09:00
   end: 18,  // 18:00
   slotDuration: 30 // minutes
 };
 
-// Create auth client from environment variables
+// Robust funktion för att hantera Private Key
+const getPrivateKey = () => {
+  const key = process.env.GOOGLE_PRIVATE_KEY;
+  if (!key) return null;
+  // Ersätt bokstavliga \n med riktiga radbrytningar och ta bort eventuella citattecken
+  return key.replace(/\\n/g, '\n').replace(/"/g, '');
+};
+
 const createAuthClient = () => {
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
+  const privateKey = getPrivateKey();
   
+  if (!privateKey) throw new Error('Private Key missing');
+
   return new google.auth.JWT({
     email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     key: privateKey,
@@ -18,7 +27,7 @@ const createAuthClient = () => {
   });
 };
 
-// Generate all possible time slots for a day
+// Generera tidsluckor (HH:mm)
 const generateTimeSlots = (startHour, endHour, slotDuration) => {
   const slots = [];
   for (let hour = startHour; hour < endHour; hour++) {
@@ -30,54 +39,58 @@ const generateTimeSlots = (startHour, endHour, slotDuration) => {
   return slots;
 };
 
-// Fetch booked times from Google Calendar
+// Hämta bokade tider med korrekt tidszon (Stockholm)
 const getBookedSlots = async (auth, calendarId, dateString) => {
   try {
     const calendar = google.calendar({ version: 'v3', auth });
     
-    // Parse date correctly - dateString is YYYY-MM-DD
-    const [year, month, day] = dateString.split('-');
+    // Sätt tidsintervall för hela dygnet i lokal tid
+    // Vi skickar ISO-strängar men låter Google hantera tidszonen via timeMin/timeMax
+    // Enklast: Sök brett (UTC) och filtrera sen
+    const startOfDay = new Date(`${dateString}T00:00:00.000+01:00`); // Approximation för sökning
+    const endOfDay = new Date(`${dateString}T23:59:59.000+01:00`);
     
-    // Create time range for the requested date (in Sweden timezone)
-    // Start: 00:00 Stockholm time
-    const startOfDay = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day), -1, 0, 0));
-    // End: 23:59 Stockholm time  
-    const endOfDay = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day), 22, 59, 59));
-    
-    console.log('Querying calendar for date:', dateString);
-    console.log('Time range:', {
-      start: startOfDay.toISOString(),
-      end: endOfDay.toISOString()
-    });
+    // Justera sökfönstret för att vara säker på att få med allt (UTC-12 till UTC+14)
+    // Det viktiga är att vi filtrerar rätt nedan.
     
     const response = await calendar.events.list({
       calendarId: calendarId,
-      timeMin: startOfDay.toISOString(),
-      timeMax: endOfDay.toISOString(),
+      timeMin: new Date(startOfDay.getTime() - 86400000).toISOString(), // Ta i lite extra bakåt
+      timeMax: new Date(endOfDay.getTime() + 86400000).toISOString(),   // Ta i lite extra framåt
       singleEvents: true,
       orderBy: 'startTime',
+      timeZone: 'Europe/Stockholm' // Be Google räkna i svensk tid
     });
     
     const bookedSlots = [];
     
     if (response.data.items) {
       response.data.items.forEach(event => {
-        if (event.start.dateTime && event.end.dateTime) {
-          const startTime = new Date(event.start.dateTime);
-          const endTime = new Date(event.end.dateTime);
+        if (event.start.dateTime) {
+          // Här är magin: Konvertera eventets tid specifikt till Svensk tid sträng (HH:mm)
+          // oavsett vad servern (Netlify) har för tidszon.
+          const eventDate = new Date(event.start.dateTime);
           
-          // Extract time in HH:MM format (UTC)
-          const startHour = String(startTime.getUTCHours()).padStart(2, '0');
-          const startMinute = String(startTime.getUTCMinutes()).padStart(2, '0');
-          const timeStr = `${startHour}:${startMinute}`;
-          
-          console.log('Found booked event:', event.summary, 'at', timeStr);
-          bookedSlots.push(timeStr);
+          // Kolla så att eventet faktiskt är på rätt dag (eftersom vi vidgade sökfönstret)
+          const eventDayString = eventDate.toLocaleDateString('sv-SE', {
+            timeZone: 'Europe/Stockholm'
+          });
+
+          if (eventDayString === dateString) {
+             const timeStr = eventDate.toLocaleTimeString('sv-SE', {
+              timeZone: 'Europe/Stockholm',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            });
+            // "09:00" format
+            bookedSlots.push(timeStr);
+          }
         }
       });
     }
     
-    console.log('Booked slots:', bookedSlots);
+    console.log('Booked slots (Stockholm time):', bookedSlots);
     return bookedSlots;
   } catch (error) {
     console.error('Error fetching calendar events:', error);
@@ -85,97 +98,57 @@ const getBookedSlots = async (auth, calendarId, dateString) => {
   }
 };
 
-// Main handler
 exports.handler = async (event) => {
-  // Only allow POST requests
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' })
-    };
+    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   try {
-    // Parse request body
     const { date } = JSON.parse(event.body);
     
-    // Validate date format (YYYY-MM-DD)
     if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ 
-          success: false,
-          error: 'Invalid date format. Use YYYY-MM-DD.' 
-        })
-      };
+      return { statusCode: 400, body: JSON.stringify({ success: false, error: 'Invalid date format' }) };
     }
 
-    // Check if date is in the past
-    const requestedDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (requestedDate < today) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ 
-          success: false,
-          error: 'Cannot book dates in the past.' 
-        })
-      };
-    }
-
-    // Get required environment variables
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
     const serviceAccountEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
     const privateKey = process.env.GOOGLE_PRIVATE_KEY;
 
     if (!calendarId || !serviceAccountEmail || !privateKey) {
-      console.error('Missing environment variables');
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ 
-          success: false,
-          error: 'Server configuration error' 
-        })
-      };
+      console.error('Missing env vars');
+      return { statusCode: 500, body: JSON.stringify({ success: false, error: 'Configuration error' }) };
     }
 
-    // Create auth client
     const auth = createAuthClient();
 
-    // Generate all possible time slots
     const allSlots = generateTimeSlots(
       BUSINESS_HOURS.start,
       BUSINESS_HOURS.end,
       BUSINESS_HOURS.slotDuration
     );
 
-    // Get booked slots from Google Calendar
     const bookedSlots = await getBookedSlots(auth, calendarId, date);
 
-    // Filter out booked slots
+    // Filtrera bort bokade tider
     const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        availableSlots: availableSlots,
-        bookedSlots: bookedSlots,
-        date: date
+        availableSlots,
+        bookedSlots, // Bra för debugging
+        date
       })
     };
   } catch (error) {
-    console.error('Error in getAvailableSlots:', error);
+    console.error('Handler error:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({ 
-        success: false,
-        error: 'Failed to fetch available slots. Please try again.' 
+        success: false, 
+        error: error.message || 'Failed to fetch slots'
       })
     };
   }
