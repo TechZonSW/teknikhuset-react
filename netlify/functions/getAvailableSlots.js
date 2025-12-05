@@ -35,9 +35,20 @@ const getBookedSlots = async (auth, calendarId, dateString) => {
   try {
     const calendar = google.calendar({ version: 'v3', auth });
     
-    // Create time range for the requested date
-    const startOfDay = new Date(dateString + 'T00:00:00Z');
-    const endOfDay = new Date(dateString + 'T23:59:59Z');
+    // Parse date correctly - dateString is YYYY-MM-DD
+    const [year, month, day] = dateString.split('-');
+    
+    // Create time range for the requested date (in Sweden timezone)
+    // Start: 00:00 Stockholm time
+    const startOfDay = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day), -1, 0, 0));
+    // End: 23:59 Stockholm time  
+    const endOfDay = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day), 22, 59, 59));
+    
+    console.log('Querying calendar for date:', dateString);
+    console.log('Time range:', {
+      start: startOfDay.toISOString(),
+      end: endOfDay.toISOString()
+    });
     
     const response = await calendar.events.list({
       calendarId: calendarId,
@@ -55,16 +66,18 @@ const getBookedSlots = async (auth, calendarId, dateString) => {
           const startTime = new Date(event.start.dateTime);
           const endTime = new Date(event.end.dateTime);
           
-          // Extract time in HH:MM format
-          const startHour = String(startTime.getHours()).padStart(2, '0');
-          const startMinute = String(startTime.getMinutes()).padStart(2, '0');
+          // Extract time in HH:MM format (UTC)
+          const startHour = String(startTime.getUTCHours()).padStart(2, '0');
+          const startMinute = String(startTime.getUTCMinutes()).padStart(2, '0');
           const timeStr = `${startHour}:${startMinute}`;
           
+          console.log('Found booked event:', event.summary, 'at', timeStr);
           bookedSlots.push(timeStr);
         }
       });
     }
     
+    console.log('Booked slots:', bookedSlots);
     return bookedSlots;
   } catch (error) {
     console.error('Error fetching calendar events:', error);
