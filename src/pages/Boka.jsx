@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { CaretLeft, CaretRight } from 'phosphor-react';
-import { Wrench, MagnifyingGlassPlus, Briefcase, UserCircle, Gear } from 'phosphor-react';
+import { MagnifyingGlassPlus, Wrench, Gear, UserCircle } from 'phosphor-react';
 import './Boka.css'; 
 import BookingWidget from '../components/bokning/BookingWidget';
 
@@ -118,12 +117,25 @@ const Boka = () => {
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
     setSelectedService(null);
+    
+    // Scrolla automatiskt till Steg 2 (Tjänster)
+    setTimeout(() => {
+      const step2 = document.getElementById('step-2-services');
+      if (step2) {
+        step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   const handleServiceSelect = (service) => {
     setSelectedService(service);
+    
+    // Scrolla automatiskt till Steg 3 (Kalender/Widget)
     setTimeout(() => {
-      document.getElementById('booking-widget-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const step3 = document.getElementById('booking-widget-anchor');
+      if (step3) {
+        step3.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }, 100);
   };
 
@@ -169,7 +181,7 @@ const Boka = () => {
 
         {/* STEG 2: Välj specifik tjänst */}
         {selectedCategory && (
-          <section className="boka-services">
+          <section id="step-2-services" className="boka-services">
             <div className="boka-container">
               <h2 className="boka-section-title">2. Välj tjänst inom {selectedCategory.groupTitle}</h2>
               <div className="boka-services__grid">
@@ -204,7 +216,9 @@ const Boka = () => {
           <section className="boka-widget-section is-visible">
             <div className="boka-container boka-container--narrow">
               <h2 className="boka-section-title">3. Välj datum och tid</h2>
+              {/* Vi skickar med en nyckel (key) baserat på service.id för att tvinga omritning om man byter tjänst */}
               <BookingWidget 
+                key={selectedService.id}
                 service={selectedService} 
                 serviceGroup={selectedCategory}
               />

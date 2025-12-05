@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CaretLeft, CaretRight } from 'phosphor-react';
+import { CaretLeft, CaretRight, CalendarPlus } from 'phosphor-react';
 import './BookingWidget.css';
 
 const BookingWidget = ({ service, serviceGroup }) => {
@@ -18,18 +18,21 @@ const BookingWidget = ({ service, serviceGroup }) => {
     notes: ''
   });
 
-  const getDaysInMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-  };
+  useEffect(() => {
+    setIsConfirmed(false);
+    setSelectedDate(null);
+    setSelectedTime(null);
+    setAvailableTimes([]);
+    setError(null);
+  }, [service]);
 
-  const getFirstDayOfMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-  };
-
-  const formatMonthYear = (date) => {
-    return date.toLocaleDateString('sv-SE', { month: 'long', year: 'numeric' });
-  };
-
+  // --- HJÄLPFUNKTIONER ---
+  
+  const getDaysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const getFirstDayOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  
+  const formatMonthYear = (date) => date.toLocaleDateString('sv-SE', { month: 'long', year: 'numeric' });
+  
   const handlePrevMonth = () => {
     const newDate = new Date(currentMonth);
     newDate.setMonth(newDate.getMonth() - 1);
@@ -42,29 +45,66 @@ const BookingWidget = ({ service, serviceGroup }) => {
     setCurrentMonth(newDate);
   };
 
-  // Fetch available slots from Netlify Function
+  const getDurationInMinutes = (durationText) => {
+    if (!durationText) return 60; 
+    const text = durationText.toLowerCase();
+    if (text.includes('15')) return 15;
+    if (text.includes('30')) return 30;
+    return 60;
+  };
+
+  // --- SKAPA GOOGLE KALENDER LÄNK ---
+  const createGoogleCalendarLink = () => {
+    if (!selectedDate || !selectedTime) return '';
+
+    const [hours, minutes] = selectedTime.split(':').map(Number);
+    const startDate = new Date(selectedDate);
+    startDate.setHours(hours);
+    startDate.setMinutes(minutes);
+
+    const duration = getDurationInMinutes(service.duration);
+    const endDate = new Date(startDate.getTime() + duration * 60000);
+
+    const pad = (n) => n.toString().padStart(2, '0');
+    
+    const formatTime = (date) => {
+      return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}00`;
+    };
+
+    const startStr = formatTime(startDate);
+    const endStr = formatTime(endDate);
+
+    const title = encodeURIComponent(`Teknikhuset: ${service.title}`);
+    const details = encodeURIComponent(`Tjänst: ${service.title}\nAdress: Teknikhuset Kalmar`);
+    const location = encodeURIComponent('Teknikhuset Kalmar');
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}&location=${location}`;
+  };
+
+  // --- API ANROP ---
+
   const fetchAvailableSlots = async (date) => {
     try {
       setIsLoading(true);
       setError(null);
       
-      const dateString = date.toISOString().split('T')[0];
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateString = `${year}-${month}-${day}`;
       
+      const durationMinutes = getDurationInMinutes(service.duration);
+
       const response = await fetch('/.netlify/functions/getAvailableSlots', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           date: dateString,
-          duration: getDurationInMinutes(service.duration)
+          duration: durationMinutes
         })
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       
       if (data.success) {
@@ -82,18 +122,33 @@ const BookingWidget = ({ service, serviceGroup }) => {
     }
   };
 
-  // Helper function to convert duration text to minutes
-  const getDurationInMinutes = (durationText) => {
-    if (durationText.includes('30')) return 30;
-    if (durationText.includes('1 timme')) return 60;
-    return 30; // default
-  };
-
   const handleDateSelect = (day) => {
     const selected = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
     setSelectedDate(selected);
     setSelectedTime(null);
     fetchAvailableSlots(selected);
+
+    setTimeout(() => {
+      const timeSection = document.getElementById('time-section-anchor');
+      if (timeSection) timeSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 200);
+  };
+
+  const handleTimeSelect = (time) => {
+    setSelectedTime(time);
+    setTimeout(() => {
+      const formSection = document.getElementById('form-section-anchor');
+      if (formSection) formSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  };
+
+  const handleReset = () => {
+    setIsConfirmed(false);
+    setSelectedDate(null);
+    setSelectedTime(null);
+    setAvailableTimes([]);
+    setFormData({ name: '', email: '', phone: '', notes: '' });
+    setError(null);
   };
 
   const handleInputChange = (e) => {
@@ -103,7 +158,6 @@ const BookingWidget = ({ service, serviceGroup }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!selectedTime || !formData.name || !formData.email || !formData.notes) {
       setError('Vänligen fyll i alla obligatoriska fält.');
       return;
@@ -113,8 +167,13 @@ const BookingWidget = ({ service, serviceGroup }) => {
       setIsLoading(true);
       setError(null);
 
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const localDateString = `${year}-${month}-${day}`;
+
       const bookingData = {
-        date: selectedDate.toISOString().split('T')[0],
+        date: localDateString,
         time: selectedTime,
         duration: getDurationInMinutes(service.duration),
         serviceId: service.id,
@@ -128,20 +187,22 @@ const BookingWidget = ({ service, serviceGroup }) => {
 
       const response = await fetch('/.netlify/functions/createBooking', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bookingData)
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
 
       if (data.success) {
         setIsConfirmed(true);
+        // FIX: Skrolla till bekräftelserutan i mitten av skärmen
+        setTimeout(() => {
+            const confirmationBox = document.querySelector('.booking-confirmation');
+            if(confirmationBox) {
+                confirmationBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 100);
       } else {
         setError(data.error || 'Något gick fel när vi bokade tiden. Försök igen.');
       }
@@ -153,26 +214,57 @@ const BookingWidget = ({ service, serviceGroup }) => {
     }
   };
 
+  // --- BEKRÄFTELSE-VY ---
   if (isConfirmed) {
     return (
       <div className="booking-confirmation">
         <div className="booking-confirmation__icon">✓</div>
         <h3>Tack för din bokning!</h3>
-        <p>Vi har skickat en bekräftelse till <strong>{formData.email}</strong>.</p>
-        <p>Du är bokad för <strong>{service.title}</strong></p>
+        
+        {/* FIX: Uppdaterad text - Inget löfte om mejl */}
+        <p>Din tid är nu registrerad för <strong>{formData.email}</strong>.</p>
+        
+        <p>Du är bokad för <strong>{service.title}</strong> ({getDurationInMinutes(service.duration)} min)</p>
         <p className="booking-confirmation__datetime">
           <strong>{selectedDate.toLocaleDateString('sv-SE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} kl {selectedTime}</strong>
         </p>
+
+        <a 
+          href={createGoogleCalendarLink()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="cta-button secondary"
+          style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            marginBottom: '20px',
+            textDecoration: 'none'
+          }}
+        >
+          <CalendarPlus size={20} />
+          Lägg till i Google Kalender
+        </a>
+
         <p className="booking-confirmation__closing">Vi ses snart på Teknikhuset Kalmar!</p>
+        
+        <div style={{ marginTop: '30px' }}>
+            <button 
+                onClick={handleReset} 
+                className="cta-button primary"
+                style={{ padding: '12px 24px' }}
+            >
+                Boka en till tid
+            </button>
+        </div>
       </div>
     );
   }
 
+  // --- STANDARD-VY ---
   const daysInMonth = getDaysInMonth(currentMonth);
   const firstDay = getFirstDayOfMonth(currentMonth);
   const calendarDays = [];
-
-  // Swedish calendar starts on Monday (1), but JS uses Sunday (0)
   const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
 
   for (let i = 0; i < adjustedFirstDay; i++) {
@@ -190,14 +282,13 @@ const BookingWidget = ({ service, serviceGroup }) => {
 
   return (
     <div className="booking-widget">
-      {/* Error Message */}
       {error && (
         <div className="booking-error">
           <p>{error}</p>
         </div>
       )}
 
-      {/* KALENDERVÄLJER */}
+      {/* KALENDER */}
       <div className="calendar-section">
         <div className="calendar-header">
           <button className="calendar-nav-btn" onClick={handlePrevMonth} aria-label="Föregående månad">
@@ -240,7 +331,8 @@ const BookingWidget = ({ service, serviceGroup }) => {
         </div>
       </div>
 
-      {/* TIDSVÄLJARE - VISAS NÄR DATUM ÄR VALT */}
+      <div id="time-section-anchor" style={{ scrollMarginTop: '20px' }}></div>
+
       {selectedDate && (
         <div className="time-section">
           <p className="time-section__label">
@@ -257,7 +349,7 @@ const BookingWidget = ({ service, serviceGroup }) => {
                 <button 
                   key={time} 
                   className={`time-slot ${selectedTime === time ? 'selected' : ''}`}
-                  onClick={() => setSelectedTime(time)}
+                  onClick={() => handleTimeSelect(time)}
                 >
                   {time}
                 </button>
@@ -265,13 +357,14 @@ const BookingWidget = ({ service, serviceGroup }) => {
             </div>
           ) : (
             <div className="time-no-slots">
-              <p>Inga lediga tider denna dag. Välj en annan dag.</p>
+              <p>Inga lediga tider som passar längden ({getDurationInMinutes(service.duration)} min).</p>
             </div>
           )}
         </div>
       )}
 
-      {/* FORMULÄR - VISAS NÄR TID ÄR VALD */}
+      <div id="form-section-anchor" style={{ scrollMarginTop: '20px' }}></div>
+
       {selectedTime && (
         <form className="booking-form" onSubmit={handleSubmit}>
           <h4>Din bokningssammanfattning</h4>
@@ -282,10 +375,14 @@ const BookingWidget = ({ service, serviceGroup }) => {
               <span className="summary-value">{service.title}</span>
             </div>
             <div className="summary-item">
-              <span className="summary-label">Datum & tid:</span>
+              <span className="summary-label">Tid:</span>
               <span className="summary-value">
                 {selectedDate.toLocaleDateString('sv-SE')} kl {selectedTime}
               </span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Längd:</span>
+              <span className="summary-value">{getDurationInMinutes(service.duration)} min</span>
             </div>
           </div>
 
@@ -335,7 +432,7 @@ const BookingWidget = ({ service, serviceGroup }) => {
               value={formData.notes} 
               onChange={handleInputChange} 
               rows="3"
-              placeholder="Beskriv kort vad du behöver hjälp med så vi kan förbereda oss bäst..."
+              placeholder="Beskriv kort vad du behöver hjälp med..."
               required
             ></textarea>
           </div>

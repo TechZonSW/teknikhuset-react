@@ -1,67 +1,109 @@
 const { google } = require('googleapis');
 
-// Create auth client from environment variables
-const createAuthClient = () => {
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
+// --- SETUP & NYCKELHANTERING (Denna fungerar nu!) ---
+const getPrivateKey = () => {
+  const key = process.env.GOOGLE_PRIVATE_KEY;
+  if (!key) {
+    console.error('CRITICAL: GOOGLE_PRIVATE_KEY is missing');
+    return null;
+  }
   
+  // Rensa bort citattecken och fixa radbrytningar
+  let cleanKey = key.replace(/['"]/g, '');
+  cleanKey = cleanKey.replace(/\\n/g, '\n');
+
+  return cleanKey;
+};
+
+const createAuthClient = () => {
+  const privateKey = getPrivateKey();
+  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+
+  if (!privateKey || !clientEmail) {
+    throw new Error('Configuration Error: Missing Private Key or Email');
+  }
+
   return new google.auth.JWT({
-    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    email: clientEmail,
     key: privateKey,
     scopes: ['https://www.googleapis.com/auth/calendar'],
   });
 };
 
-// Create a booking event in Google Calendar
+// --- HJÄLPFUNKTIONER ---
+
+const calculateEndDateTime = (dateStr, timeStr, durationMinutes) => {
+  const [hours, minutes] = timeStr.split(':').map(Number);
+  const tempDate = new Date();
+  tempDate.setHours(hours);
+  tempDate.setMinutes(minutes + durationMinutes);
+  tempDate.setSeconds(0);
+
+  const newH = tempDate.getHours().toString().padStart(2, '0');
+  const newM = tempDate.getMinutes().toString().padStart(2, '0');
+  
+  return `${dateStr}T${newH}:${newM}:00`;
+};
+
+// --- LOGIK ---
+
+const isTimeSlotAvailable = async (auth, calendarId, date, time) => {
+  const calendar = google.calendar({ version: 'v3', auth });
+  const timeMin = `${date}T00:00:00Z`;
+  const timeMax = `${date}T23:59:59Z`;
+
+  const response = await calendar.events.list({
+    calendarId: calendarId,
+    timeMin: timeMin,
+    timeMax: timeMax,
+    singleEvents: true,
+  });
+
+  const conflicts = response.data.items.filter(item => {
+    if (!item.start.dateTime) return false;
+    const eventTime = new Date(item.start.dateTime).toLocaleTimeString('sv-SE', {
+      timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit', hour12: false
+    });
+    return eventTime === time;
+  });
+
+  return conflicts.length === 0;
+};
+
 const createCalendarEvent = async (auth, calendarId, bookingData) => {
   try {
     const calendar = google.calendar({ version: 'v3', auth });
     
-    // Parse the date and time
-    const [year, month, day] = bookingData.date.split('-');
-    const [hour, minute] = bookingData.time.split(':');
-    
-    const startTime = new Date(
-      parseInt(year),
-      parseInt(month) - 1, // JS months are 0-indexed
-      parseInt(day),
-      parseInt(hour),
-      parseInt(minute)
-    );
-    
-    const endTime = new Date(startTime.getTime() + bookingData.duration * 60000);
-    
-    // Build event description
-    const description = `
-Tjänst: ${bookingData.serviceTitle}
-Tjänstkategori: ${bookingData.serviceGroup}
+    const startDateTime = `${bookingData.date}T${bookingData.time}:00`;
+    const endDateTime = calculateEndDateTime(bookingData.date, bookingData.time, bookingData.duration);
 
-Kundinformation:
+    const description = `
+TJÄNST: ${bookingData.serviceTitle}
+KATEGORI: ${bookingData.serviceGroup}
+LÄNGD: ${bookingData.duration} min
+
+KUNDINFORMATION:
 Namn: ${bookingData.customerName}
 E-post: ${bookingData.customerEmail}
-Telefon: ${bookingData.customerPhone || 'Inte angiven'}
+Telefon: ${bookingData.customerPhone || '-'}
 
-Kundens behov/problem:
+KUNDENS BEHOV/PROBLEM:
 ${bookingData.customerNotes}
 `.trim();
 
-    // Create the event
     const event = {
       summary: `${bookingData.serviceTitle} - ${bookingData.customerName}`,
       description: description,
       start: {
-        dateTime: startTime.toISOString(),
-        timeZone: 'Europe/Stockholm', // Swedish timezone
+        dateTime: startDateTime,
+        timeZone: 'Europe/Stockholm', 
       },
       end: {
-        dateTime: endTime.toISOString(),
+        dateTime: endDateTime,
         timeZone: 'Europe/Stockholm',
       },
-      attendees: [
-        {
-          email: bookingData.customerEmail,
-          responseStatus: 'needsAction',
-        }
-      ],
+      // VIKTIGT: Jag har tagit bort 'attendees' helt härifrån.
+      // Det är detta som löser 403-felet.
       reminders: {
         useDefault: true,
       }
@@ -70,194 +112,47 @@ ${bookingData.customerNotes}
     const response = await calendar.events.insert({
       calendarId: calendarId,
       resource: event,
-      sendUpdates: 'externalOnly', // Send calendar invitation to customer
     });
 
-    return {
-      success: true,
-      eventId: response.data.id,
-      htmlLink: response.data.htmlLink,
-    };
+    return { success: true, eventId: response.data.id };
   } catch (error) {
-    console.error('Error creating calendar event:', error);
+    console.error('Google API Insert Error:', error);
     throw error;
   }
 };
 
-// Check if a time slot is already booked
-const isTimeSlotAvailable = async (auth, calendarId, date, time, duration) => {
-  try {
-    const calendar = google.calendar({ version: 'v3', auth });
-    
-    const [year, month, day] = date.split('-');
-    const [hour, minute] = time.split(':');
-    
-    const startTime = new Date(
-      parseInt(year),
-      parseInt(month) - 1,
-      parseInt(day),
-      parseInt(hour),
-      parseInt(minute)
-    );
-    
-    const endTime = new Date(startTime.getTime() + duration * 60000);
-    
-    const response = await calendar.events.list({
-      calendarId: calendarId,
-      timeMin: startTime.toISOString(),
-      timeMax: endTime.toISOString(),
-      singleEvents: true,
-    });
+// --- HANDLER ---
 
-    // If any events exist in this time range, it's not available
-    return response.data.items.length === 0;
-  } catch (error) {
-    console.error('Error checking time slot availability:', error);
-    throw error;
-  }
-};
-
-// Main handler
 exports.handler = async (event) => {
-  // Only allow POST requests
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' })
-    };
-  }
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json'
+  };
+
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
+  if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   try {
-    // Parse request body
     const bookingData = JSON.parse(event.body);
     
-    // Validate required fields
-    const requiredFields = ['date', 'time', 'duration', 'serviceTitle', 'customerName', 'customerEmail', 'customerNotes'];
-    for (const field of requiredFields) {
-      if (!bookingData[field]) {
-        return {
-          statusCode: 400,
-          body: JSON.stringify({ 
-            success: false,
-            error: `Missing required field: ${field}` 
-          })
-        };
-      }
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(bookingData.customerEmail)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ 
-          success: false,
-          error: 'Invalid email format' 
-        })
-      };
-    }
-
-    // Validate date format (YYYY-MM-DD)
-    if (!bookingData.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ 
-          success: false,
-          error: 'Invalid date format. Use YYYY-MM-DD.' 
-        })
-      };
-    }
-
-    // Validate time format (HH:MM)
-    if (!bookingData.time.match(/^\d{2}:\d{2}$/)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ 
-          success: false,
-          error: 'Invalid time format. Use HH:MM.' 
-        })
-      };
-    }
-
-    // Get environment variables
-    const calendarId = process.env.GOOGLE_CALENDAR_ID;
-    const serviceAccountEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-    const privateKey = process.env.GOOGLE_PRIVATE_KEY;
-
-    if (!calendarId || !serviceAccountEmail || !privateKey) {
-      console.error('Missing environment variables');
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ 
-          success: false,
-          error: 'Server configuration error' 
-        })
-      };
-    }
-
-    // Create auth client
+    if (!process.env.GOOGLE_CALENDAR_ID) throw new Error('Missing GOOGLE_CALENDAR_ID');
     const auth = createAuthClient();
+    const calendarId = process.env.GOOGLE_CALENDAR_ID;
 
-    // Check if time slot is still available
-    const isAvailable = await isTimeSlotAvailable(
-      auth,
-      calendarId,
-      bookingData.date,
-      bookingData.time,
-      bookingData.duration
-    );
-
+    // 1. Kolla om tiden är ledig
+    const isAvailable = await isTimeSlotAvailable(auth, calendarId, bookingData.date, bookingData.time);
     if (!isAvailable) {
-      return {
-        statusCode: 409,
-        body: JSON.stringify({ 
-          success: false,
-          error: 'This time slot is no longer available. Please choose another time.' 
-        })
-      };
+      return { statusCode: 409, headers, body: JSON.stringify({ success: false, error: 'Tiden är tyvärr inte längre tillgänglig.' }) };
     }
 
-    // Create the booking
-    const bookingResult = await createCalendarEvent(auth, calendarId, bookingData);
+    // 2. Skapa bokningen (Utan attendees = Inget error)
+    const result = await createCalendarEvent(auth, calendarId, bookingData);
 
-    return {
-      statusCode: 201,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        success: true,
-        message: 'Booking created successfully',
-        eventId: bookingResult.eventId,
-        customerEmail: bookingData.customerEmail,
-        bookingDetails: {
-          date: bookingData.date,
-          time: bookingData.time,
-          service: bookingData.serviceTitle,
-          customerName: bookingData.customerName
-        }
-      })
-    };
+    return { statusCode: 201, headers, body: JSON.stringify(result) };
+
   } catch (error) {
-    console.error('Error in createBooking:', error);
-    
-    // Return specific error if it's a Google API error
-    if (error.message.includes('Invalid Credentials')) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ 
-          success: false,
-          error: 'Authentication error. Please contact support.' 
-        })
-      };
-    }
-
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ 
-        success: false,
-        error: 'Failed to create booking. Please try again or contact us.' 
-      })
-    };
+    console.error('Handler crashed:', error);
+    return { statusCode: 500, headers, body: JSON.stringify({ success: false, error: error.message || 'Internt serverfel.' }) };
   }
 };
