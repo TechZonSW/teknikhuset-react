@@ -1,0 +1,406 @@
+/* ================== SHARED PRICE TOOL STYLES ================================== */
+
+/* --- Interactive Price Tool --- */
+.price-tool-container {
+  max-width: 750px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 40px;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: var(--shadow-medium);
+}
+
+.price-step {
+  margin-bottom: 40px;
+}
+
+.price-step:last-of-type {
+  margin-bottom: 0;
+}
+
+.price-step h4 {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--secondary-color);
+  margin-bottom: 20px;
+  letter-spacing: 0.3px;
+}
+
+.device-selection {
+  display: grid;
+  /* === KORRIGERING HÄR: Ändrad från 3 till 2 kolumner === */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.device-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  border: 2px solid rgba(212, 175, 55, 0.2);
+  border-radius: 10px;
+  background-color: transparent;
+  font-family: var(--font-family);
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.device-btn:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-color);
+  background-color: rgba(212, 175, 55, 0.05);
+  box-shadow: var(--shadow-gold-glow);
+}
+
+.device-btn.active {
+  background-color: var(--secondary-color);
+  color: var(--text-color-light);
+  border-color: var(--secondary-color);
+  transform: scale(1.02);
+}
+
+.device-btn.active svg {
+  color: var(--primary-light);
+}
+
+.secondary-device-types {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.device-type-btn-secondary {
+  padding: 10px 25px;
+  border: 1.5px solid rgba(212, 175, 55, 0.2);
+  border-radius: 50px;
+  background-color: transparent;
+  font-family: var(--font-family);
+  font-size: 0.95em;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.device-type-btn-secondary:hover {
+  color: var(--text-color);
+  border-color: var(--primary-color);
+  background-color: rgba(212, 175, 55, 0.05);
+  transform: translateY(-2px);
+}
+
+.device-type-btn-secondary.active {
+  color: var(--text-color-light);
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+
+/* --- Premium Custom Dropdown --- */
+.custom-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border: 1.5px solid rgba(212, 175, 55, 0.15);
+  border-radius: 12px;
+  background-color: #fff;
+  font-family: var(--font-family);
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+
+.custom-select-trigger:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+  background-color: rgba(212, 175, 55, 0.02);
+}
+
+.custom-select-trigger.open {
+  border-color: var(--primary-color);
+  background-color: rgba(212, 175, 55, 0.05);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.custom-select-trigger span:not(.value-selected) {
+  color: var(--text-color-secondary);
+}
+
+.custom-select-trigger span.value-selected {
+  color: var(--text-color);
+}
+
+.custom-select-trigger .arrow {
+  color: var(--primary-color);
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-select-trigger.open .arrow {
+  transform: rotate(180deg);
+}
+
+.custom-select-options {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #fff;
+  border-radius: 12px;
+  border: 1.5px solid rgba(212, 175, 55, 0.15);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  padding: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  list-style: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-select-options.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.custom-select-options .custom-select-option {
+  padding: 14px 16px;
+  margin: 4px 0;
+  border-radius: 8px;
+  background-color: transparent;
+  font-family: var(--font-family);
+  font-size: 0.95em;
+  font-weight: 500;
+  color: var(--text-color);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.custom-select-option:hover {
+  background-color: rgba(212, 175, 55, 0.08);
+  color: var(--primary-dark);
+  transform: translateX(4px);
+}
+
+.custom-select-option * {
+  color: inherit !important;
+}
+
+/* --- Brand Selection --- */
+.brand-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.brand-btn {
+  padding: 12px 25px;
+  border: 1.5px solid rgba(212, 175, 55, 0.2);
+  border-radius: 50px;
+  background-color: transparent;
+  font-family: var(--font-family);
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.brand-btn:hover {
+  border-color: var(--primary-color);
+  background-color: rgba(212, 175, 55, 0.05);
+  transform: translateY(-2px);
+}
+
+.brand-btn.active {
+  background-color: var(--secondary-color);
+  color: var(--text-color-light);
+  border-color: var(--secondary-color);
+}
+
+/* --- Price Display --- */
+.price-display {
+  margin-top: 50px;
+  padding: 40px;
+  background: var(--gradient-premium);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 12px;
+  text-align: center;
+  animation: priceSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes priceSlideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.price-label {
+  font-size: 1em;
+  color: var(--text-color-secondary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.price-container {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 15px;
+  line-height: 1;
+  margin-bottom: 20px;
+}
+
+.price-amount {
+  font-size: 2.8em;
+  font-weight: 700;
+  color: var(--secondary-color);
+  line-height: 1.2;
+}
+
+.original-price {
+  font-size: 1.4em;
+  font-weight: 400;
+  color: var(--text-color-secondary);
+  text-decoration: line-through;
+}
+
+.price-includes {
+  font-size: 0.9em;
+  color: var(--text-color-secondary);
+  margin-bottom: 25px;
+}
+
+.price-display .cta-button {
+  width: 100%;
+  max-width: 300px;
+}
+
+/* --- Fallback Text --- */
+.fallback-text {
+  text-align: center;
+  margin-top: 50px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.fallback-text h4 {
+  margin-bottom: 12px;
+  font-size: 1.1em;
+  color: var(--secondary-color);
+  font-weight: 600;
+}
+
+.fallback-text p {
+  color: var(--text-color-secondary);
+  font-size: 0.95em;
+  line-height: 1.7;
+}
+
+.fallback-text a {
+  color: var(--primary-dark);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.fallback-text a:hover {
+  text-decoration: underline;
+  color: var(--secondary-color);
+}
+
+/* --- Tooltip for Membership Info --- */
+.tooltip-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+}
+
+.tooltip-container .tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  width: 220px;
+  background-color: var(--secondary-color);
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -110px;
+  transition: opacity 0.3s;
+  font-size: 0.85em;
+  line-height: 1.5;
+  box-shadow: var(--shadow-medium);
+}
+
+.tooltip-container .tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--secondary-color) transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* --- Responsive adjustments for Price Tool --- */
+@media (max-width: 600px) {
+  .device-selection {
+    grid-template-columns: 1fr;
+  }
+  .price-tool-container {
+    padding: 25px;
+  }
+  .brand-btn {
+    font-size: 0.9em;
+    padding: 10px 20px;
+  }
+  .price-amount {
+    font-size: 2.2em;
+  }
+  .custom-select-trigger {
+    font-size: 0.95em;
+    padding: 14px 16px;
+  }
+}
+
+/* --- Snyggare auto-scroll --- */
+/* scroll-margin-top ser till att det blir lite luft överst när webbläsaren skrollar hit. */
+.scroll-target {
+  scroll-margin-top: 20px; /* Justera detta värde efter din smak! */
+}

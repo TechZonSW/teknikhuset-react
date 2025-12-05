@@ -1,0 +1,376 @@
+/* ============================================= */
+/* ===== FÖR FÖRETAG - SPECIFIKA STILAR ===== */
+/* ============================================= */
+
+.for-foretag-page .content-section {
+  padding: 100px 0;
+  overflow: hidden;
+}
+
+.for-foretag-page .content-section h2 {
+  text-align: center;
+  font-size: 2.8em;
+  margin-bottom: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--secondary-color);
+}
+
+.for-foretag-page .content-section .section-intro {
+  text-align: center;
+  font-size: 1.1em;
+  color: var(--text-color-secondary);
+  max-width: 650px;
+  margin: 0 auto 60px auto;
+  line-height: 1.8;
+}
+
+/* ===== 1. HERO SECTION ===== */
+.foretag-hero {
+  position: relative;
+  height: calc(100vh - 70px);
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-align: center;
+}
+
+.foretag-hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/bilder/foretag-hero.png');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.8);
+}
+
+.foretag-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, rgba(10, 14, 39, 0.4) 0%, rgba(10, 14, 39, 0.7) 100%);
+}
+
+.foretag-hero .hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.foretag-hero h1 {
+  font-size: 3.5em;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.foretag-hero p {
+  font-size: 1.2em;
+  max-width: 700px;
+  margin: 0 auto 40px auto;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.foretag-hero .hero-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* ===== 2. PARTNER SECTION ===== */
+.partner-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 60px;
+}
+
+.partner-column {
+  padding: 40px;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: #fff;
+  transition: all 0.4s ease;
+  cursor: default; /* Ändrat från pointer eftersom den inte är klickbar */
+}
+
+.partner-column h3 {
+  font-size: 1.4em;
+  margin-bottom: 8px;
+  color: var(--secondary-color);
+}
+
+.partner-column .column-title {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--text-color-secondary);
+  margin-bottom: 15px;
+}
+
+.partner-column:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-premium);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.partner-column.proactive {
+  background: var(--gradient-dark);
+  color: var(--text-color-light);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: var(--shadow-premium);
+}
+
+.partner-column.proactive:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(212, 175, 55, 0.3);
+}
+
+.partner-column.proactive h3,
+.partner-column.proactive .column-title {
+  color: #fff;
+}
+
+.partner-column.proactive .column-title {
+  color: var(--primary-light);
+}
+
+.partner-column.proactive p {
+  color: rgba(240, 237, 229, 0.8);
+}
+
+/* ===== 3. OFFER OVERVIEW SECTION (NYTT) ===== */
+.offer-overview-section {
+  background: var(--background-color);
+}
+
+.offer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+}
+
+.offer-card {
+  background: #fff;
+  padding: 40px 30px;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  box-shadow: var(--shadow-soft);
+  transition: all 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+}
+
+.offer-card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--shadow-premium);
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.offer-icon-wrapper {
+  color: var(--primary-color);
+  margin-bottom: 25px;
+  background: rgba(212, 175, 55, 0.08);
+  padding: 15px;
+  border-radius: 50%;
+  display: inline-flex;
+}
+
+.offer-card h3 {
+  font-size: 1.5em;
+  color: var(--secondary-color);
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.offer-card p {
+  color: var(--text-color-secondary);
+  line-height: 1.6;
+  font-size: 1em;
+  margin-bottom: 25px;
+  flex-grow: 1; /* Ser till att knappen hamnar längst ner även om texten är kort */
+}
+
+.card-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+.offer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--primary-dark);
+  text-decoration: none;
+  font-size: 1em;
+  transition: all 0.3s ease;
+}
+
+.offer-link:hover {
+  color: var(--primary-color);
+  gap: 12px; /* Liten animation av pilen */
+}
+
+/* ===== 4. USP SECTION ===== */
+.usp-section {
+  text-align: center;
+  position: relative;
+}
+
+.usp-section h2 {
+  color: var(--primary-light);
+  position: relative;
+  z-index: 2;
+}
+
+.usp-section p {
+  color: rgba(240, 237, 229, 0.85);
+  position: relative;
+  z-index: 2;
+}
+
+.usp-section .cta-button {
+  margin-top: 30px;
+}
+
+/* ===== 5. TIMELINE SECTION ===== */
+.timeline-section {
+  background-color: #fff;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 60px;
+}
+
+.timeline-step {
+  text-align: center;
+  max-width: 400px;
+  position: relative;
+  z-index: 2;
+}
+
+.timeline-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--primary-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.timeline-step:hover .timeline-icon {
+  transform: scale(1.1);
+  background: rgba(212, 175, 55, 0.2);
+  box-shadow: var(--shadow-gold-glow);
+}
+
+.timeline-step h3 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.timeline-step p {
+  color: var(--text-color-secondary);
+}
+
+.timeline-connector {
+  width: 2px;
+  height: 50px;
+  background: rgba(212, 175, 55, 0.2);
+}
+
+/* ===== 6. FINAL CTA ===== */
+.final-cta-section {
+  background: var(--background-color);
+  text-align: center;
+}
+
+.final-cta-section .cta-button {
+  margin-top: 30px;
+}
+
+/* ===== ANIMATION ===== */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-animate].animated {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-animate]:nth-child(2) { transition-delay: 0.1s; }
+[data-animate]:nth-child(3) { transition-delay: 0.2s; }
+[data-animate]:nth-child(4) { transition-delay: 0.3s; }
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 900px) {
+  .for-foretag-page .content-section h2 {
+    font-size: 2.2em;
+  }
+
+  .foretag-hero {
+    height: 70vh;
+  }
+
+  .foretag-hero h1 {
+    font-size: 2.5em;
+  }
+
+  .partner-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .for-foretag-page .content-section {
+    padding: 80px 0;
+  }
+
+  .foretag-hero h1 {
+    font-size: 2em;
+  }
+
+  .foretag-hero p {
+    font-size: 1em;
+  }
+
+  .foretag-hero .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .offer-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .offer-card {
+    padding: 25px;
+  }
+}
+
+.usp-section.dark-section h2 {
+  color: var(--primary-light) !important;
+}

@@ -1,0 +1,420 @@
+/* ============================================= */
+/* ===== FÖR FÖRETAG - SPECIFIKA STILAR ===== */
+/* ============================================= */
+
+.for-foretag-page .content-section {
+  padding: 100px 0;
+  overflow: hidden;
+}
+
+.for-foretag-page .content-section h2 {
+  text-align: center;
+  font-size: 2.8em;
+  margin-bottom: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--secondary-color);
+}
+
+.for-foretag-page .content-section .section-intro {
+  text-align: center;
+  font-size: 1.1em;
+  color: var(--text-color-secondary);
+  max-width: 650px;
+  margin: 0 auto 60px auto;
+  line-height: 1.8;
+}
+
+/* ===== 1. HERO SECTION ===== */
+.foretag-hero {
+  position: relative;
+  height: calc(100vh - 70px);
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-align: center;
+}
+
+.foretag-hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/bilder/foretag-hero.png');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.8);
+}
+
+.foretag-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, rgba(10, 14, 39, 0.4) 0%, rgba(10, 14, 39, 0.7) 100%);
+}
+
+.foretag-hero .hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.foretag-hero h1 {
+  font-size: 3.5em;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.foretag-hero p {
+  font-size: 1.2em;
+  max-width: 700px;
+  margin: 0 auto 40px auto;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.foretag-hero .hero-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* ===== 2. PARTNER SECTION ===== */
+.partner-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 60px;
+}
+
+.partner-column {
+  padding: 40px;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: #fff;
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.partner-column h3 {
+  font-size: 1.4em;
+  margin-bottom: 8px;
+  color: var(--secondary-color);
+}
+
+.partner-column .column-title {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--text-color-secondary);
+  margin-bottom: 15px;
+}
+
+.partner-column:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-premium);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.partner-column.proactive {
+  background: var(--gradient-dark);
+  color: var(--text-color-light);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: var(--shadow-premium);
+}
+
+.partner-column.proactive:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 20px 60px rgba(212, 175, 55, 0.3);
+}
+
+.partner-column.proactive h3,
+.partner-column.proactive .column-title {
+  color: #fff;
+}
+
+.partner-column.proactive .column-title {
+  color: var(--primary-light);
+}
+
+.partner-column.proactive p {
+  color: rgba(240, 237, 229, 0.8);
+}
+
+/* ===== 3. SOLUTIONS DASHBOARD ===== */
+.solutions-dashboard {
+  background: var(--background-color);
+}
+
+.solutions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+}
+
+.solution-category {
+  background: #fff;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow: var(--shadow-soft);
+  transition: all 0.4s ease;
+  overflow: hidden;
+}
+
+.solution-category:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-premium);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.category-header {
+  padding: 30px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  transition: all 0.3s ease;
+}
+
+.solution-category:hover .category-header {
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.category-header svg {
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+.solution-category:hover .category-header svg {
+  transform: scale(1.1);
+}
+
+.category-header h3 {
+  font-size: 1.6em;
+  margin-bottom: 5px;
+  color: var(--secondary-color);
+}
+
+.category-header p {
+  color: var(--text-color-secondary);
+  font-size: 1em;
+}
+
+.service-cards-container {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.solution-category:hover .service-cards-container,
+.solution-category.expanded .service-cards-container {
+  max-height: 1000px;
+}
+
+.service-card {
+  padding: 20px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: rgba(212, 175, 55, 0.04);
+  border-left: 3px solid transparent;
+}
+
+.service-card:hover {
+  background: rgba(212, 175, 55, 0.1);
+  border-left-color: var(--primary-color);
+  transform: translateX(8px);
+}
+
+.service-card h4 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--secondary-color);
+}
+
+.service-card p {
+  font-size: 0.95em;
+  color: var(--text-color-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.service-card svg {
+  color: var(--primary-color);
+  opacity: 0;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  display: none;
+}
+
+.service-card:hover svg {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+/* ===== 4. USP SECTION ===== */
+.usp-section {
+  text-align: center;
+  position: relative;
+}
+
+.usp-section h2 {
+  color: var(--primary-light);
+  position: relative;
+  z-index: 2;
+}
+
+.usp-section p {
+  color: rgba(240, 237, 229, 0.85);
+  position: relative;
+  z-index: 2;
+}
+
+.usp-section .cta-button {
+  margin-top: 30px;
+}
+
+/* ===== 5. TIMELINE SECTION ===== */
+.timeline-section {
+  background-color: #fff;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 60px;
+}
+
+.timeline-step {
+  text-align: center;
+  max-width: 400px;
+  position: relative;
+  z-index: 2;
+}
+
+.timeline-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--primary-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.timeline-step:hover .timeline-icon {
+  transform: scale(1.1);
+  background: rgba(212, 175, 55, 0.2);
+  box-shadow: var(--shadow-gold-glow);
+}
+
+.timeline-step h3 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.timeline-step p {
+  color: var(--text-color-secondary);
+}
+
+.timeline-connector {
+  width: 2px;
+  height: 50px;
+  background: rgba(212, 175, 55, 0.2);
+}
+
+/* ===== 6. FINAL CTA ===== */
+.final-cta-section {
+  background: var(--background-color);
+  text-align: center;
+}
+
+.final-cta-section .cta-button {
+  margin-top: 30px;
+}
+
+/* ===== ANIMATION ===== */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-animate].animated {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-animate]:nth-child(2) { transition-delay: 0.1s; }
+[data-animate]:nth-child(3) { transition-delay: 0.2s; }
+[data-animate]:nth-child(4) { transition-delay: 0.3s; }
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 900px) {
+  .for-foretag-page .content-section h2 {
+    font-size: 2.2em;
+  }
+
+  .foretag-hero {
+    height: 70vh;
+  }
+
+  .foretag-hero h1 {
+    font-size: 2.5em;
+  }
+
+  .partner-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .for-foretag-page .content-section {
+    padding: 80px 0;
+  }
+
+  .foretag-hero h1 {
+    font-size: 2em;
+  }
+
+  .foretag-hero p {
+    font-size: 1em;
+  }
+
+  .foretag-hero .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .solutions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-card {
+    padding: 16px;
+  }
+
+  .service-card h4 {
+    font-size: 1em;
+  }
+
+  .service-card p {
+    font-size: 0.9em;
+  }
+}
+.usp-section.dark-section h2 {
+  color: var(--primary-light) !important;
+}

@@ -1,0 +1,203 @@
+/* ================== REPARATION PAGE-SPECIFIC STYLES ================================== */
+
+/* --- Section 1: Hero --- */
+#reparation-hero {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 70px); 
+  min-height: 500px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+#reparation-hero .hero-content {
+  max-width: 850px;
+}
+
+#reparation-hero h1 {
+  font-size: 3.8em;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
+}
+
+#reparation-hero p {
+  font-size: 1.25em;
+  margin-bottom: 30px;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards;
+}
+
+.secondary-link {
+  display: block;
+  margin-top: 25px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 0.9em;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.8s forwards;
+}
+
+.secondary-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* --- Section 2: Trust Guarantee --- */
+.guarantee-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-top: 50px;
+}
+
+.guarantee-card {
+  text-align: center;
+  padding: 40px 30px;
+  background-color: #fff;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  box-shadow: var(--shadow-soft);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.guarantee-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-premium);
+  border-color: rgba(212, 175, 55, 0.25);
+}
+
+.guarantee-icon {
+  color: var(--icon-color);
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.guarantee-card:hover .guarantee-icon {
+  color: var(--primary-dark);
+  transform: scale(1.1);
+}
+
+.guarantee-card h3 {
+  font-size: 1.3em;
+  margin-bottom: 10px;
+  color: var(--secondary-color);
+}
+
+.guarantee-card p {
+  color: var(--text-color-secondary);
+  line-height: 1.7;
+  font-size: 0.95em;
+}
+
+.section-intro-text {
+  font-size: 1.15em;
+  color: var(--text-color-secondary);
+  line-height: 1.8;
+  max-width: 700px;
+  margin: -40px auto 40px auto;
+}
+
+/* --- Section 4: FAQ --- */
+.faq-accordion {
+  width: 100%;
+  margin-top: 40px;
+}
+
+.faq-item {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.faq-item:first-child {
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.faq-question {
+  width: 100%;
+  background: none;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.faq-question span {
+  font-size: 1.15em;
+  font-weight: 600;
+  color: var(--secondary-color);
+  transition: color 0.3s ease;
+}
+
+.faq-question:hover span {
+  color: var(--primary-dark);
+}
+
+.faq-question svg {
+  color: var(--primary-color);
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s ease;
+}
+
+.faq-answer p {
+  padding: 0 10px 25px 10px;
+  color: var(--text-color-secondary);
+  line-height: 1.8;
+  font-size: 1em;
+}
+
+.faq-answer.open {
+  max-height: 300px;
+}
+
+/* --- Responsive Adjustments for Reparation Page --- */
+@media (max-width: 900px) {
+  #reparation-hero {
+    height: 80vh;
+  }
+  #reparation-hero h1 {
+    font-size: 2.8em;
+  }
+  #reparation-hero p {
+    font-size: 1.1em;
+  }
+  .guarantee-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  #reparation-hero h1 {
+    font-size: 2.2em;
+  }
+  #reparation-hero p {
+    font-size: 1em;
+  }
+  .faq-question span {
+    font-size: 1em;
+  }
+  .faq-answer p {
+    font-size: 0.95em;
+  }
+}

@@ -1,0 +1,569 @@
+/* =================================================================== */
+/* ===   VARDERING / TRADE-IN PAGE STYLES (v3.0 - FINAL POLISH)    === */
+/* =================================================================== */
+
+/* --- Section 1: Hero (Enhanced Dark Version) --- */
+#vardering-hero {
+  position: relative;
+  height: calc(100vh - 70px);
+  min-height: 550px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--gradient-dark);
+  color: var(--text-color-light);
+  overflow: hidden;
+}
+
+#vardering-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -20%;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+  animation: floatGlow 15s ease-in-out infinite;
+  pointer-events: none;
+}
+
+#vardering-hero .hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#vardering-hero h1 {
+  font-size: clamp(2.8em, 6vw, 4em);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 25px;
+  letter-spacing: -1px;
+}
+
+#vardering-hero h1 .highlight {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#vardering-hero p {
+  font-size: 1.25em;
+  margin-bottom: 40px;
+  color: rgba(240, 237, 229, 0.8);
+  line-height: 1.8;
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* --- Section Headers --- */
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-header h2 {
+  font-size: clamp(2.2em, 5vw, 3em);
+  font-weight: 800;
+  margin-bottom: 15px;
+  color: var(--secondary-color);
+  letter-spacing: -0.5px;
+}
+
+.section-header p {
+  font-size: 1.15em;
+  color: var(--text-color-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+/* --- Section 2: Reasons Grid (Refined) --- */
+.reasons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.reason-card {
+  text-align: left;
+  padding: 40px 35px;
+  background-color: #fff;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  box-shadow: var(--shadow-soft);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.reason-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reason-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-premium);
+  border-color: rgba(212, 175, 55, 0.2);
+}
+
+.reason-card:hover::before {
+  transform: scaleX(1);
+}
+
+.reason-icon {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  transition: var(--transition);
+}
+
+.reason-card:hover .reason-icon {
+    transform: scale(1.1);
+}
+
+.reason-card h3 {
+  font-size: 1.3em;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--secondary-color);
+}
+
+.reason-card p {
+  color: var(--text-color-secondary);
+  line-height: 1.7;
+  font-size: 0.95em;
+}
+
+
+/* --- Section 3: Valuation Tool (FINAL) --- */
+.valuation-tool-wrapper {
+  max-width: 850px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: clamp(30px, 5vw, 60px);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow: var(--shadow-premium);
+}
+
+.valuation-step {
+  margin-bottom: 40px;
+}
+.valuation-step:last-child {
+  margin-bottom: 0;
+}
+
+.valuation-step h4 {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--secondary-color);
+  margin-bottom: 25px;
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+.device-type-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.device-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  border: 2px solid rgba(212, 175, 55, 0.2);
+  border-radius: 10px;
+  background-color: transparent;
+  font-family: var(--font-family);
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.device-type-btn:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-color);
+  background-color: rgba(212, 175, 55, 0.05);
+  box-shadow: var(--shadow-gold-glow);
+}
+
+.device-type-btn.active {
+  background-color: var(--secondary-color);
+  color: var(--text-color-light);
+  border-color: var(--secondary-color);
+  transform: scale(1.02);
+}
+
+.device-type-btn.active svg {
+  color: var(--primary-light);
+}
+
+/* NYTT: Styling för formulärsteg med premium-avstånd */
+.valuation-form-step .custom-select-wrapper {
+  margin-bottom: 40px;
+}
+
+.valuation-form-step .question-group {
+  margin-bottom: 35px;
+}
+
+.valuation-form-step .question-group:last-child {
+  margin-bottom: 0;
+}
+
+.valuation-form-step .question-label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 1.05em;
+}
+
+.condition-btn {
+  padding: 12px 25px;
+  border: 1.5px solid rgba(212, 175, 55, 0.2);
+  border-radius: 50px;
+  background-color: transparent;
+  font-family: var(--font-family);
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.condition-btn:hover {
+  border-color: var(--primary-color);
+  background-color: rgba(212, 175, 55, 0.05);
+  transform: translateY(-2px);
+}
+
+.condition-btn.active {
+  background-color: var(--secondary-color);
+  color: var(--text-color-light);
+  border-color: var(--secondary-color);
+}
+
+/* =================================================================== */
+/* ===   Section 3: Valuation Tool (v7.0 - NO-SCROLL GUARANTEE)    === */
+/* =================================================================== */
+
+.valuation-tool-wrapper {
+  max-width: 850px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 40px clamp(30px, 5vw, 60px) 50px; /* SLUTGILTIG JUSTERING: Mindre padding upptill */
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow: var(--shadow-premium);
+}
+
+/* SLUTGILTIG JUSTERING: Anpassad marginal specifikt för verktygets header */
+.valuation-tool-wrapper .section-header {
+  margin-bottom: 30px; 
+}
+
+.valuation-tool-content {
+  position: relative;
+  /* SLUTGILTIG JUSTERING: min-height BORTTAGEN. Höjden styrs nu helt av innehållet. */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: min-height 0.4s ease;
+}
+
+.valuation-form-wrapper {
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.valuation-form-wrapper.is-exiting {
+  opacity: 0;
+  transform: scale(0.98);
+  pointer-events: none;
+}
+
+.valuation-result-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(1.02);
+  transition: opacity 0.4s ease-in 0.2s, transform 0.4s ease-in 0.2s;
+  pointer-events: none;
+}
+
+.valuation-result-wrapper.is-showing {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.valuation-step {
+  margin-bottom: 0;
+}
+
+.valuation-step h4 {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--secondary-color);
+  margin-bottom: 20px;
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+.device-type-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px; /* SLUTGILTIG JUSTERING: Något mindre gap */
+}
+
+.device-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* SLUTGILTIG JUSTERING: Mindre gap internt */
+  padding: 20px; /* SLUTGILTIG JUSTERING: Kompaktare padding */
+  border: 2px solid rgba(212, 175, 55, 0.2);
+  border-radius: 10px;
+  background-color: transparent;
+  font-family: var(--font-family);
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.device-type-btn:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-color);
+  background-color: rgba(212, 175, 55, 0.05);
+  box-shadow: var(--shadow-gold-glow);
+}
+
+.device-type-btn.active {
+  background-color: var(--secondary-color);
+  color: var(--text-color-light);
+  border-color: var(--secondary-color);
+  transform: scale(1.02);
+}
+
+.device-type-btn.active svg {
+  color: var(--primary-light);
+}
+
+.secondary-device-types {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px; /* SLUTGILTIG JUSTERING: Minskad marginal */
+}
+
+.device-type-btn-secondary {
+  padding: 10px 25px;
+  border: 1.5px solid rgba(212, 175, 55, 0.2);
+  border-radius: 50px;
+  background-color: transparent;
+  font-family: var(--font-family);
+  font-size: 0.95em;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.device-type-btn-secondary:hover {
+  color: var(--text-color);
+  border-color: var(--primary-color);
+  background-color: rgba(212, 175, 55, 0.05);
+  transform: translateY(-2px);
+}
+
+.brand-selection {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.valuation-form-step .custom-select-wrapper {
+  margin-bottom: 40px;
+}
+
+.valuation-form-step .question-group {
+  margin-bottom: 35px;
+}
+
+.valuation-form-step .question-group:last-child {
+  margin-bottom: 0;
+}
+
+.valuation-form-step .question-label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 1.05em;
+}
+
+.condition-btn {
+  padding: 12px 25px;
+  border: 1.5px solid rgba(212, 175, 55, 0.2);
+  border-radius: 50px;
+  background-color: transparent;
+  font-family: var(--font-family);
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.condition-btn:hover {
+  border-color: var(--primary-color);
+  background-color: rgba(212, 175, 55, 0.05);
+  transform: translateY(-2px);
+}
+
+.condition-btn.active {
+  background-color: var(--secondary-color);
+  color: var(--text-color-light);
+  border-color: var(--secondary-color);
+}
+
+.valuation-result {
+  text-align: center;
+  padding: 40px;
+  background: var(--gradient-premium);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 12px;
+  width: 100%;
+}
+
+.valuation-result h3 {
+  font-size: 1.1em;
+  color: var(--text-color-secondary);
+  font-weight: 500;
+  margin-bottom: 15px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.valuation-result .price-amount {
+  font-size: clamp(3em, 8vw, 4.5em);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  background: linear-gradient(45deg, #00664d, #009973); 
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.valuation-result .next-step-prompt {
+  font-size: 1.05em;
+}
+
+/* --- Justering för ankar-länkar --- */
+/* Ger "luft" ovanför sektionen när man skrollar dit via en länk som #valuation-tool */
+section#valuation-tool {
+  scroll-margin-top: 20px; /* Justera detta värde! 90px är ofta bra om du har en standardmeny. */
+}
+
+/* --- Section 4: Timeline (Refined) --- */
+.timeline {
+  max-width: 600px;
+  margin: 60px auto 0 auto;
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 25px;
+  bottom: 25px;
+  left: 24px;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(212, 175, 55, 0.25), rgba(212, 175, 55, 0));
+  z-index: 0;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+  position: relative;
+  padding-bottom: 40px;
+}
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-icon {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #fff;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-dark);
+  font-weight: 700;
+  font-size: 1.2em;
+  z-index: 1;
+}
+
+.timeline-content h3 {
+  font-size: 1.3em;
+  color: var(--secondary-color);
+  margin-bottom: 8px;
+}
+
+.timeline-content p {
+  color: var(--text-color-secondary);
+  line-height: 1.7;
+}
+
+/* --- Section 5: FAQ (Refined) --- */
+.faq-item {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+}
+.faq-item:first-child {
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.faq-question {
+    padding: 25px 10px;
+    transition: background-color 0.3s ease;
+}
+
+.faq-question:hover {
+    background-color: rgba(212, 175, 55, 0.04);
+}
+
