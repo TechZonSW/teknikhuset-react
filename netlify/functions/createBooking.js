@@ -1,11 +1,12 @@
-// const { google } = require('googleapis');
-import { google } from "googleapis";
+import { google } from 'googleapis';
+import { GOOGLE_CALENDAR_ID } from './config.js';
 
-// --- SETUP & NYCKELHANTERING (Denna fungerar nu!) ---
+// --- SETUP & NYCKELHANTERING ---
 const getPrivateKey = () => {
-  const key = process.env.GOOGLE_PRIVATE_KEY;
+  // 2. USE FIREBASE KEY
+  const key = process.env.FIREBASE_PRIVATE_KEY;
   if (!key) {
-    console.error('CRITICAL: GOOGLE_PRIVATE_KEY is missing');
+    console.error('CRITICAL: FIREBASE_PRIVATE_KEY is missing');
     return null;
   }
   
@@ -18,10 +19,11 @@ const getPrivateKey = () => {
 
 const createAuthClient = () => {
   const privateKey = getPrivateKey();
-  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  // 3. USE FIREBASE EMAIL
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
 
   if (!privateKey || !clientEmail) {
-    throw new Error('Configuration Error: Missing Private Key or Email');
+    throw new Error('Configuration Error: Missing Firebase Private Key or Email');
   }
 
   return new google.auth.JWT({
@@ -103,8 +105,6 @@ ${bookingData.customerNotes}
         dateTime: endDateTime,
         timeZone: 'Europe/Stockholm',
       },
-      // VIKTIGT: Jag har tagit bort 'attendees' helt härifrån.
-      // Det är detta som löser 403-felet.
       reminders: {
         useDefault: true,
       }
@@ -124,7 +124,6 @@ ${bookingData.customerNotes}
 
 // --- HANDLER ---
 
-// exports.handler = async (event) => {
 export const handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -138,9 +137,10 @@ export const handler = async (event) => {
   try {
     const bookingData = JSON.parse(event.body);
     
-    if (!process.env.GOOGLE_CALENDAR_ID) throw new Error('Missing GOOGLE_CALENDAR_ID');
+    // 4. USE CONFIG ID (Removed check for process.env)
+    const calendarId = GOOGLE_CALENDAR_ID;
+    
     const auth = createAuthClient();
-    const calendarId = process.env.GOOGLE_CALENDAR_ID;
 
     // 1. Kolla om tiden är ledig
     const isAvailable = await isTimeSlotAvailable(auth, calendarId, bookingData.date, bookingData.time);
@@ -148,7 +148,7 @@ export const handler = async (event) => {
       return { statusCode: 409, headers, body: JSON.stringify({ success: false, error: 'Tiden är tyvärr inte längre tillgänglig.' }) };
     }
 
-    // 2. Skapa bokningen (Utan attendees = Inget error)
+    // 2. Skapa bokningen
     const result = await createCalendarEvent(auth, calendarId, bookingData);
 
     return { statusCode: 201, headers, body: JSON.stringify(result) };

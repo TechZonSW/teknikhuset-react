@@ -1,12 +1,14 @@
 // netlify/functions/registerMember.js
 import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
+import { MEMBER_SHEETS_ID, GMAIL_USER } from './config.js';
 
-// --- SETUP (Återanvänder din befintliga nyckelhantering) ---
+// --- SETUP (Nu med Firebase-inloggning) ---
 const getPrivateKey = () => {
-  const key = process.env.CONTACT_FORM_PRIVATE_KEY;
+  // UPDATED: Using Firebase Private Key
+  const key = process.env.FIREBASE_PRIVATE_KEY;
   if (!key) {
-    console.error('CRITICAL: CONTACT_FORM_PRIVATE_KEY is missing');
+    console.error('CRITICAL: FIREBASE_PRIVATE_KEY is missing');
     return null;
   }
   return key.replace(/['"]/g, '').replace(/\\n/g, '\n');
@@ -14,10 +16,11 @@ const getPrivateKey = () => {
 
 const createAuthClient = () => {
   const privateKey = getPrivateKey();
-  const clientEmail = process.env.CONTACT_FORM_SERVICE_ACCOUNT_EMAIL;
+  // UPDATED: Using Firebase Client Email
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
 
   if (!privateKey || !clientEmail) {
-    throw new Error('Configuration Error: Missing keys');
+    throw new Error('Configuration Error: Missing Firebase keys');
   }
 
   return new google.auth.JWT({
@@ -30,7 +33,7 @@ const createAuthClient = () => {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.GMAIL_USER,
+    user: GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
   },
 });
@@ -76,7 +79,7 @@ export const handler = async (event) => {
     // Se till att fliken i ditt Google Sheet heter exakt "Medlemmar"
     await sheets.spreadsheets.values.append({
       auth,
-      spreadsheetId: process.env.MEMBER_SHEETS_ID, 
+      spreadsheetId: MEMBER_SHEETS_ID, 
       range: 'Medlemmar!A:K', 
       valueInputOption: 'USER_ENTERED',
       requestBody: {

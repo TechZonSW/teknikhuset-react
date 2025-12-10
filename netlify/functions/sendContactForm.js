@@ -1,12 +1,14 @@
 // netlify/functions/sendContactForm.js
 import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
+import { CONTACT_FORM_SHEETS_ID, GMAIL_USER } from './config.js';
 
 // --- SETUP & NYCKELHANTERING ---
 const getPrivateKey = () => {
-  const key = process.env.CONTACT_FORM_PRIVATE_KEY;
+  // UPDATED: Using Firebase Private Key
+  const key = process.env.FIREBASE_PRIVATE_KEY;
   if (!key) {
-    console.error('CRITICAL: CONTACT_FORM_PRIVATE_KEY is missing');
+    console.error('CRITICAL: FIREBASE_PRIVATE_KEY is missing');
     return null;
   }
   
@@ -19,10 +21,11 @@ const getPrivateKey = () => {
 
 const createAuthClient = () => {
   const privateKey = getPrivateKey();
-  const clientEmail = process.env.CONTACT_FORM_SERVICE_ACCOUNT_EMAIL;
+  // UPDATED: Using Firebase Client Email
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
 
   if (!privateKey || !clientEmail) {
-    throw new Error('Configuration Error: Missing CONTACT_FORM Private Key or Email');
+    throw new Error('Configuration Error: Missing Firebase Keys or Email');
   }
 
   return new google.auth.JWT({
@@ -36,7 +39,7 @@ const createAuthClient = () => {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.GMAIL_USER,
+    user: GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
   },
 });
@@ -69,7 +72,7 @@ export const handler = async (event) => {
       };
     }
 
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toLocaleString('sv-SE');
 
     // 1. Spara till Google Sheets
     const sheets = google.sheets('v4');
@@ -77,7 +80,7 @@ export const handler = async (event) => {
 
     await sheets.spreadsheets.values.append({
       auth,
-      spreadsheetId: process.env.CONTACT_FORM_SHEETS_ID,
+      spreadsheetId: CONTACT_FORM_SHEETS_ID,
       range: 'Kontaktformulär!A:F',
       valueInputOption: 'USER_ENTERED',
       requestBody: {

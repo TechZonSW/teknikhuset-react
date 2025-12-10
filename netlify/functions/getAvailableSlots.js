@@ -1,9 +1,10 @@
-const { google } = require('googleapis');
+import { google } from 'googleapis';
+import { GOOGLE_CALENDAR_ID } from './config.js';
 
 // --- AUTH & NYCKELHANTERING ---
-// --- AUTH & NYCKELHANTERING ---
 const getPrivateKey = () => {
-  const key = process.env.GOOGLE_PRIVATE_KEY;
+  // 2. USE FIREBASE KEY
+  const key = process.env.FIREBASE_PRIVATE_KEY;
   if (!key) return null;
   
   // 1. Ta bort ALLA citattecken
@@ -17,7 +18,8 @@ const getPrivateKey = () => {
 
 const createAuthClient = () => {
   const privateKey = getPrivateKey();
-  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  // 3. USE FIREBASE EMAIL
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   
   if (!privateKey || !clientEmail) throw new Error('Auth Config Error');
 
@@ -120,7 +122,8 @@ export const handler = async (event) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing date or duration' }) };
     }
 
-    const calendarId = process.env.GOOGLE_CALENDAR_ID;
+    // 4. USE CONFIG ID
+    const calendarId = GOOGLE_CALENDAR_ID;
     const auth = createAuthClient();
 
     // 1. Hämta alla bokade intervaller
@@ -139,9 +142,6 @@ export const handler = async (event) => {
       const potentialStart = currentTime;
       const potentialEnd = currentTime + duration;
 
-      // Kollar om tjänsten hinner avslutas innan vi stänger
-      // Om du vill att man ska kunna boka 19:30 för en 30min tjänst (slutar 20:00) => Använd <=
-      // Om du vill att man ska vara ute ur butiken 20:00 => Använd <=
       if (potentialEnd > dayEnd) {
         continue; 
       }

@@ -1,45 +1,63 @@
-const { initializeApp, getApps, cert } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 
-// Initiera Firebase Admin (Backend) om det inte redan är gjort
+// 1. IMPORT CONFIG & SECRETS
+import { FIREBASE_PROJECT_ID } from './config.js';
+
+// --- FIREBASE ADMIN SETUP ---
 if (!getApps().length) {
-  // Vi försöker läsa från miljövariablerna (samma som dina andra funktioner använder)
-  // Om du har en specifik setup för 'createRepair.js', kopiera init-koden därifrån istället.
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-  
-  // Fallback om du kör lokalt och använder andra variabler i .env
-  if (Object.keys(serviceAccount).length === 0) {
-     initializeApp({
-        credential: cert({
-          projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
-        })
-     });
-  } else {
-     initializeApp({ credential: cert(serviceAccount) });
+  // We use the same secure setup as your other functions
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY 
+    ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') 
+    : undefined;
+
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+
+  if (!privateKey || !clientEmail) {
+    throw new Error('CRITICAL: Missing Firebase Admin Credentials');
   }
+
+  initializeApp({
+    credential: cert({
+      projectId: FIREBASE_PROJECT_ID, 
+      clientEmail: clientEmail,       
+      privateKey: privateKey         
+    })
+  });
 }
 
 const db = getFirestore();
 
-exports.handler = async (event, context) => {
+// --- HANDLER ---
+
+export const handler = async (event, context) => {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json'
+  };
+
+  // Hantera pre-flight requests (CORS)
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
   // Endast POST tillåtet
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return { statusCode: 405, headers, body: 'Method Not Allowed' };
   }
 
   try {
     const data = JSON.parse(event.body);
     const { action, id, postData } = data;
 
-    // Här kan du lägga till verifiering av JWT-token om du vill vara extra säker (likt dina andra filer)
-    // const token = event.headers.authorization; ...
+    // Optional: Add Auth check here if needed in the future
 
     if (action === 'create') {
       const docRef = await db.collection('blogPosts').add(postData);
       return {
         statusCode: 200,
+        headers,
         body: JSON.stringify({ id: docRef.id, message: 'Inlägget skapat' })
       };
     } 
@@ -49,6 +67,7 @@ exports.handler = async (event, context) => {
       await db.collection('blogPosts').doc(id).update(postData);
       return {
         statusCode: 200,
+        headers,
         body: JSON.stringify({ message: 'Inlägget uppdaterat' })
       };
     } 
@@ -58,16 +77,18 @@ exports.handler = async (event, context) => {
       await db.collection('blogPosts').doc(id).delete();
       return {
         statusCode: 200,
+        headers,
         body: JSON.stringify({ message: 'Inlägget raderat' })
       };
     }
 
-    return { statusCode: 400, body: 'Ogiltig åtgärd (action)' };
+    return { statusCode: 400, headers, body: 'Ogiltig åtgärd (action)' };
 
   } catch (error) {
     console.error('Blog Error:', error);
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({ error: error.message })
     };
   }
