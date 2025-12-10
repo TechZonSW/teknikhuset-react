@@ -119,25 +119,41 @@ const Boka = () => {
   // NYTT: Effekt som kollar om vi ska auto-välja något när sidan laddas
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    
+    // Fall 1: Specifik tjänst (tex från "Gratis Felsökning"-knappen)
     const serviceToSelectId = params.get('autoSelect');
+    
+    // Fall 2: Bara Kategori (tex från Priskalkylatorn)
+    const categoryToSelectId = params.get('autoSelectCategory');
 
     if (serviceToSelectId) {
-      // Hitta vilken kategori och tjänst detta ID tillhör
+      // ... (Din gamla kod för att välja tjänst ligger kvar här) ...
       for (const category of serviceCategories) {
         const foundService = category.services.find(s => s.id === serviceToSelectId);
-        
         if (foundService) {
           setSelectedCategory(category);
           setSelectedService(foundService);
-          
-          // Scrolla direkt till widgeten
           setTimeout(() => {
             const widget = document.getElementById('booking-widget-anchor');
             if (widget) widget.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 500); // Lite längre delay för att säkerställa att renderingen är klar
-          
-          break; // Sluta leta
+          }, 500);
+          break;
         }
+      }
+    } 
+    // NY LOGIK HÄR FÖR KATEGORI:
+    else if (categoryToSelectId) {
+      const foundCategory = serviceCategories.find(c => c.id === categoryToSelectId);
+      
+      if (foundCategory) {
+        setSelectedCategory(foundCategory);
+        // Vi sätter INTE setSelectedService här, så användaren får välja själv i steg 2.
+        
+        // Scrolla till Steg 2
+        setTimeout(() => {
+          const step2 = document.getElementById('step-2-services');
+          if (step2) step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
       }
     }
   }, [location]);

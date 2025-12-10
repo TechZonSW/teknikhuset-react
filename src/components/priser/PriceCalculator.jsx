@@ -3,6 +3,7 @@ import { HashLink } from 'react-router-hash-link';
 import { Smartphone, Laptop, Watch, Tablet, Info } from 'lucide-react';
 import CustomSelect from '../CustomSelect';
 import '../../pages/Priser.css';
+import { Link } from 'react-router-dom';
 
 // Karta för att översätta enhetstyper från sheet till interna nycklar
 const deviceTypeInfo = {
@@ -260,7 +261,9 @@ const PriceCalculator = () => {
             <p className="original-price">{price} kr</p>
           </div>
           <p className="price-includes">Inkluderar arbete, reservdel och garanti.</p>
-          <button className="cta-button">Boka Reparation</button>
+          <Link to="/boka?autoSelectCategory=reparation" className="cta-button">
+            Boka Reparation
+          </Link>
         </div>
       )}
       
