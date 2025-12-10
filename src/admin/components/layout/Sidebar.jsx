@@ -1,5 +1,6 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from "../../context/AuthContext";
 import { 
   LayoutGrid, 
   Wrench, 
@@ -9,23 +10,31 @@ import {
   ChevronRight,
   Globe,
   LogOut,
-  Shield
+  Shield,
+  FileText // <--- NY IKON
 } from 'lucide-react';
 
 const navigationItems = [
   { id: 'dashboard', label: 'Översikt', icon: LayoutGrid, path: '/admin/dashboard' },
-  { id: 'tickets', label: 'Ärenden', icon: Wrench, path: '/admin/reparationer' },
+  { id: 'tickets', label: 'Reparationer', icon: Wrench, path: '/admin/reparationer' },
+  { id: 'blog', label: 'Blogg & Nyheter', icon: FileText, path: '/admin/blog' }, // <--- NY LÄNK
   { id: 'storage', label: 'Lager', icon: Package, path: '/admin/lager' },
   { id: 'scan', label: 'Skanna', icon: QrCode, path: '/admin/skanna' },
 ];
 
 export default function Sidebar({ sidebarCollapsed, setSidebarCollapsed, mobileMenuOpen, setMobileMenuOpen }) {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   
   const handleNavLinkClick = () => {
-    // Stäng mobilmenyn när en länk klickas
     if (mobileMenuOpen) {
       setMobileMenuOpen(false);
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/admin/login');
   };
 
   return (
@@ -85,7 +94,7 @@ export default function Sidebar({ sidebarCollapsed, setSidebarCollapsed, mobileM
           <Globe size={20} strokeWidth={1.5} />
           {!sidebarCollapsed && <span>Till webbplatsen</span>}
         </a>
-        <button className="logout-btn" title="Logga ut">
+        <button className="logout-btn" title="Logga ut" onClick={handleLogout}>
           <LogOut size={20} strokeWidth={1.5} />
           {!sidebarCollapsed && <span>Logga ut</span>}
         </button>

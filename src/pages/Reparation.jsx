@@ -18,7 +18,16 @@ const Reparation = () => {
   return (
     <>
       <section id="reparation-hero">
-         <div className="hero-video-container"><video className="hero-media-background" src="/bilder/repair_macro_video.mp4" autoPlay loop muted playsInline /><div className="hero-overlay"></div></div>
+        <div className="hero-video-container">
+          {/* Ändrat från video till img */}
+          <img 
+            className="hero-media-background" 
+            src="/bilder/02-Hero-Reparation.png" 
+            alt="Expert-reparationer av teknik" 
+          />
+          <div className="hero-overlay"></div>
+        </div>
+        
         <div className="hero-content container">
           <h1>Expert-reparationer. Din digitala vardag, återställd.</h1>
           <p>En sprucken skärm, ett trött batteri eller mjukvara som krånglar – vi förstår frustrationen. Våra certifierade tekniker ger din enhet nytt liv med branschens bästa reservdelar och en service du kan lita på. Snabbt, säkert och med garanti.</p>
@@ -26,11 +35,11 @@ const Reparation = () => {
             <a href="#pris" className="cta-button">Se Ditt Pris</a>
             <HashLink to="/kontakt#hitta-oss" className="cta-button tertiary">Hitta till Oss</HashLink>
           </div>
-          <a href="/reparation-status" className="secondary-link">Redan kund? Spåra din reparation här.</a>
+          <a href="/spara" className="secondary-link">Redan kund? Spåra din reparation här.</a>
         </div>
       </section>
 
-      <section className="content-section light-bg-section">
+      <section id="reservdelar" className="content-section light-bg-section">
         <div className="container">
           <div className="small-container"><h2>Reparationer på dina villkor. Alltid med vår garanti.</h2></div>
           <div className="guarantee-grid">

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom'; // NYTT: Behövs för att läsa länken
 import { MagnifyingGlassPlus, Wrench, Gear, UserCircle } from 'phosphor-react';
 import './Boka.css'; 
 import BookingWidget from '../components/bokning/BookingWidget';
@@ -113,12 +114,38 @@ const serviceCategories = [
 const Boka = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
+  const location = useLocation(); // NYTT: Hämtar URL-info
+
+  // NYTT: Effekt som kollar om vi ska auto-välja något när sidan laddas
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const serviceToSelectId = params.get('autoSelect');
+
+    if (serviceToSelectId) {
+      // Hitta vilken kategori och tjänst detta ID tillhör
+      for (const category of serviceCategories) {
+        const foundService = category.services.find(s => s.id === serviceToSelectId);
+        
+        if (foundService) {
+          setSelectedCategory(category);
+          setSelectedService(foundService);
+          
+          // Scrolla direkt till widgeten
+          setTimeout(() => {
+            const widget = document.getElementById('booking-widget-anchor');
+            if (widget) widget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 500); // Lite längre delay för att säkerställa att renderingen är klar
+          
+          break; // Sluta leta
+        }
+      }
+    }
+  }, [location]);
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
     setSelectedService(null);
     
-    // Scrolla automatiskt till Steg 2 (Tjänster)
     setTimeout(() => {
       const step2 = document.getElementById('step-2-services');
       if (step2) {
@@ -130,7 +157,6 @@ const Boka = () => {
   const handleServiceSelect = (service) => {
     setSelectedService(service);
     
-    // Scrolla automatiskt till Steg 3 (Kalender/Widget)
     setTimeout(() => {
       const step3 = document.getElementById('booking-widget-anchor');
       if (step3) {
@@ -216,7 +242,6 @@ const Boka = () => {
           <section className="boka-widget-section is-visible">
             <div className="boka-container boka-container--narrow">
               <h2 className="boka-section-title">3. Välj datum och tid</h2>
-              {/* Vi skickar med en nyckel (key) baserat på service.id för att tvinga omritning om man byter tjänst */}
               <BookingWidget 
                 key={selectedService.id}
                 service={selectedService} 

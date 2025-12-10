@@ -46,27 +46,8 @@ const Header = () => {
     };
   }, []);
 
-  // --- ÄNDRING STARTAR HÄR ---
-  // Lade till "e-Butik" och "Företagslösningar" i listan.
+  // --- HÄR ÄR LISTAN DU VILLE UPPDATERA ---
   const exploreMegamenuItems = [
-    {
-      title: 'e-Butik',
-      description: 'Handplockad teknik och tillbehör',
-      icon: '🛒',
-      path: '/e-butik',
-    },
-    {
-      title: 'Företagslösningar',
-      description: 'Skräddarsydd service för företag',
-      icon: '🏢',
-      path: '/for-foretag',
-    },
-    {
-      title: 'Boka Tid',
-      description: 'Säkra din personliga servicetid',
-      icon: '🗓️',
-      path: '/boka',
-    },
     {
       title: 'Spåra din Reparation',
       description: 'Följ din reparation i realtid',
@@ -79,8 +60,43 @@ const Header = () => {
       icon: '💰',
       path: '/vardering',
     },
+    {
+      title: 'Boka Tid',
+      description: 'Säkra din personliga servicetid',
+      icon: '🗓️',
+      path: 'boka',
+    },
+    {  
+      title: 'Bli Medlem',
+      description: 'Förmåner, rabatter och förtur',
+      icon: '👑',
+      path: '/medlemskap',
+    },
+    {
+      title: 'Företagslösningar',
+      description: 'Skräddarsydd service för företag',
+      icon: '🏢',
+      path: '/for-foretag',
+    },
+    {
+      title: 'Teknikbloggen',
+      description: 'Tips, guider och nyheter',
+      icon: '📝',
+      path: '/blog',
+    },
+    {
+      title: 'e-Butik',
+      description: 'Handplockad teknik och tillbehör',
+      icon: '🛒',
+      path: '/e-butik',
+    },
+    {
+      title: 'Trygghet & Transparens',
+      description: 'Våra garantier och policys',
+      icon: '🛡️',
+      path: '/trygghet',
+    },
   ];
-  // --- ÄNDRING SLUTAR HÄR ---
 
   return (
     <header className={scrolled ? 'scrolled' : ''}>
@@ -108,10 +124,8 @@ const Header = () => {
             
             <ul>
               <li><NavLink to="/" onClick={closeMobileNav}>Hem</NavLink></li>
-              {/* --- ÄNDRING: Tog bort "e-Butik" härifrån --- */}
               <li><NavLink to="/reparation" onClick={closeMobileNav}>Reparation</NavLink></li>
               <li><NavLink to="/priser" onClick={closeMobileNav}>Priser</NavLink></li>
-              {/* --- ÄNDRING: Tog bort "Företagslösningar" härifrån --- */}
                             
               {/* UTFORSKA - DESKTOP MEGAMENU */} 
               <li 

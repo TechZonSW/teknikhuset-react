@@ -360,10 +360,11 @@
   color: var(--text-color-secondary);
 }
 
-/* ===== FEATURE LIST ===== */
+#our-promise .feature-list,
+#why-us .feature-list,
 .feature-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr); 
   gap: 40px;
   text-align: center;
 }
@@ -540,6 +541,8 @@
     grid-template-columns: 1fr;
   }
 
+  #our-promise .feature-list,
+  #why-us .feature-list,
   .feature-list {
     grid-template-columns: 1fr;
   }

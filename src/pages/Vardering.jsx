@@ -11,7 +11,7 @@ const Vardering = () => {
   const faqs = [
     {
       question: 'Vad behöver jag ta med mig?',
-      answer: 'Ta med själva enheten och giltig legitimation. Om du har kvar originallåda och laddare kan det ibland höja värdet något, men det är inget krav.'
+      answer: 'Ta med själva enheten, kvitton om du har kvar den och giltig legitimation. Om du har kvar originallåda och laddare kan det ibland höja värdet något, men det är inget krav.'
     },
     {
       question: 'Måste jag radera min data själv?',
@@ -66,10 +66,9 @@ const Vardering = () => {
         </div>
       </section>
 
-      {/* Section 3: Interactive Valuation Tool (Refined) */}
+      {/* Section 3: Interactive Valuation Tool */}
       <section id="valuation-tool" className="content-section light-bg-section scroll-target">
         <div className="container">
-          {/* NY STRUKTUR: Rubriken är nu INUTI wrappern för en kompaktare layout */}
           <div className="valuation-tool-wrapper">
             <div className="section-header" style={{ marginBottom: '40px' }}>
               <h2>Se vad din enhet är värd</h2>

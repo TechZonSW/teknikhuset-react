@@ -1,3 +1,6 @@
+// Tillfällig data för E-Butik
+
+
 export const allProducts = [
   // --- Andrahandsprodukter ---
   {

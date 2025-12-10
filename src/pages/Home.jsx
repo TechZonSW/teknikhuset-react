@@ -1,58 +1,59 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { HashLink } from 'react-router-hash-link';
 import { Sparkle, Leaf, Headphones, Wrench, MagnifyingGlassPlus, Cpu, CloudArrowUp, Storefront, ShieldCheck } from 'phosphor-react';
 import './Home.css';
 
 const slidesData = [
   {
     type: 'video',
-    source: '/bilder/Animation-start.mp4',
+    source: '/01-Hem/01-Hero-Video.mp4',
     h1: 'Upptäck en smartare vardag',
     p: 'Upplev noggrant utvald teknik, personlig service och sömlösa reparationer – både online och i butik. Med rum för lugn, omtanke och val som känns rätt.',
     buttons: [
-      { text: 'Utforska e-Butiken', path: '/kontakt', class: 'tertiary' },
-      { text: 'Våra Reparationer', path: '/kontakt', class: 'tertiary' },
-      { text: 'Gratis Felsökning', path: '/kontakt', class: 'tertiary' },
+      { text: 'Utforska e-Butiken', path: '/e-butik', class: 'tertiary' },
+      { text: 'Våra Reparationer', path: '/reparation', class: 'tertiary' },
+      { text: 'Gratis Felsökning', path: '/boka?autoSelect=gratis_felsökning', class: 'tertiary' },
     ],
   },
   {
     type: 'image',
-    source: '/bilder/hem-hero.png',
+    source: '/01-Hem/02-Hero-Transparens.png',
     h1: 'Radikal transparens',
     p: 'Följ din reparation i realtid med vårt unika live-spårningssystem. Vi tror på full insyn, därför erbjuder vi alltid gratis felsökning innan du fattar ett beslut.',
     buttons: [
-      { text: 'Spåra din Reparation', path: '/kontakt', class: 'tertiary' },
-      { text: 'Boka Felsökning', path: '/kontakt', class: 'tertiary' },
+      { text: 'Spåra din Reparation', path: '/spara', class: 'tertiary' },
+      { text: 'Boka Felsökning', path: '/boka?autoSelect=express_diagnos', class: 'tertiary' },
     ],
   },
   {
     type: 'image',
-    source: '/bilder/hem-hero.png',
+    source: '/01-Hem/03-Hero-Kvalitet.png',
     h1: 'Kompromisslös kvalitet',
     p: 'Som Apple Independent Repair Provider använder vi originaldelar. Vårt Quality Lab stresstestar varje tillbehör så att du kan känna dig helt trygg.',
     buttons: [
-      { text: 'Apple Original-delar', path: '/kontakt', class: 'tertiary' },
-      { text: 'Se Våra Tillbehör', path: '/kontakt', class: 'tertiary' },
+      { text: 'Apple Original-delar', path: '/reparation#reservdelar', class: 'tertiary' },
+      { text: 'Se Våra Tillbehör', path: '/e-butik', class: 'tertiary' },
     ],
   },
   {
     type: 'image',
-    source: '/bilder/hem-hero.png',
+    source: '/01-Hem/04-Hero-Service.png',
     h1: 'Serviceupplevelse i världsklass',
-    p: 'Koppla av i vår kundlounge medan vi tar hand om din teknik. Vi är inte bara en butik – vi är en plats för lärande, dialog och personlig service.',
+    p: 'Koppla av i vår kundlounge medan vi tar hand om din teknik. Vi är inte bara en butik, vi är en plats för lärande, dialog och personlig service.',
     buttons: [
-      { text: 'Besök Oss i Kalmar', path: '/kontakt', class: 'tertiary' },
-      { text: 'Vår Filosofi', path: '/kontakt', class: 'tertiary' },
+      { text: 'Besök Oss i Kalmar', path: '/kontakt#hitta-oss', class: 'tertiary' },
+      { text: 'Vår Filosofi', path: '/kontakt#filosofi', class: 'tertiary' },
     ],
   },
   {
     type: 'image',
-    source: '/bilder/hem-hero.png',
+    source: '/01-Hem/5-Hero-Hållbarhet.png',
     h1: 'Hållbarhet som kärnvärde',
     p: 'Vi förlänger livet på den teknik som redan finns. Upptäck våra A-klassade rekonditionerade enheter – ett smartare val för både plånboken och planeten.',
     buttons: [
-      { text: 'Köp Rekonditionerat', path: '/kontakt', class: 'tertiary' },
-      { text: 'Värdera din Enhet', path: '/kontakt', class: 'tertiary' },
+      { text: 'Köp Rekonditionerat', path: '/e-butik', class: 'tertiary' },
+      { text: 'Värdera din Enhet', path: '/vardering#valuation-tool', class: 'tertiary' },
     ],
   },
 ];
@@ -165,9 +166,10 @@ const Home = () => {
                 <p data-animate>{slide.p}</p>
                 <div className="hero-buttons" data-animate>
                   {slide.buttons.map((button, btnIndex) => (
-                    <Link key={btnIndex} to={button.path} className={`cta-button ${button.class}`}>
+                    // Byt Link mot HashLink här:
+                    <HashLink key={btnIndex} to={button.path} className={`cta-button ${button.class}`}>
                       {button.text}
-                    </Link>
+                    </HashLink>
                   ))}
                 </div>
               </div>
@@ -198,7 +200,7 @@ const Home = () => {
                 <p>När något inte fungerar som det ska, finns våra tekniker här för att hjälpa. Vi återställer din enhet med noggrant utvalda reservdelar av högsta kvalitet, så att du snabbt kan återgå till din vardag.</p>
                 <ul className="sub-offering-list">
                   <li className="sub-offering-item">
-                    <Link to="/kontakt">
+                    <Link to="/reparation">
                       <Wrench size={32} weight="duotone" />
                       <div className="sub-offering-text">
                         <h4>Expert-Reparationer</h4>
@@ -207,7 +209,8 @@ const Home = () => {
                     </Link>
                   </li>
                   <li className="sub-offering-item">
-                    <Link to="/kontakt">
+                    {/* KORRIGERAD: Nu med 'ö' i id:t */}
+                    <Link to="/boka?autoSelect=gratis_felsökning">
                       <MagnifyingGlassPlus size={32} weight="duotone" />
                       <div className="sub-offering-text">
                         <h4>Kostnadsfri felsökning</h4>
@@ -216,18 +219,18 @@ const Home = () => {
                     </Link>
                   </li>
                   <li className="sub-offering-item">
-                    <Link to="/kontakt">
+                    <HashLink to="/reparation#reservdelar">
                       <Cpu size={32} weight="duotone" />
                       <div className="sub-offering-text">
                         <h4>Bygg din dator</h4>
                         <p>Vi monterar din drömdator, för gaming eller kreativitet.</p>
                       </div>
-                    </Link>
+                    </HashLink>
                   </li>
                 </ul>
               </div>
               <div className="focus-card-footer">
-                <Link to="/kontakt" className="cta-button secondary">Utforska våra reparationer</Link>
+                <Link to="/reparation" className="cta-button secondary">Utforska våra reparationer</Link>
               </div>
             </div>
             <div className="focus-card" data-animate>
@@ -236,7 +239,7 @@ const Home = () => {
                 <p>Utforska allt från de senaste innovationerna till hållbara certifierade alternativ. Komplettera med noga utvalda tillbehör och känn dig trygg med att allt levereras med omsorg och en trygg garanti.</p>
                 <ul className="sub-offering-list">
                   <li className="sub-offering-item">
-                    <Link to="/kontakt">
+                    <Link to="/e-butik">
                       <Sparkle size={32} weight="duotone" />
                       <div className="sub-offering-text">
                         <h4>Den Senaste Tekniken</h4>
@@ -245,7 +248,7 @@ const Home = () => {
                     </Link>
                   </li>
                   <li className="sub-offering-item">
-                    <Link to="/kontakt">
+                    <Link to="/e-butik">
                       <Leaf size={32} weight="duotone" />
                       <div className="sub-offering-text">
                         <h4>Kvalitet som Varar</h4>
@@ -254,7 +257,7 @@ const Home = () => {
                     </Link>
                   </li>
                   <li className="sub-offering-item">
-                    <Link to="/kontakt">
+                    <Link to="/e-butik">
                       <Headphones size={32} weight="duotone" />
                       <div className="sub-offering-text">
                         <h4>Personliga Tillval</h4>
@@ -265,7 +268,7 @@ const Home = () => {
                 </ul>
               </div>
               <div className="focus-card-footer">
-                <Link to="/kontakt" className="cta-button">Kliv in i e-Butiken</Link>
+                <Link to="/e-butik" className="cta-button">Kliv in i e-Butiken</Link>
               </div>
             </div>
           </div>
@@ -319,7 +322,7 @@ const Home = () => {
         <div className="container small-container">
           <h2 data-animate>Byt in. Byt upp.</h2>
           <p data-animate>Har du en gammal enhet som samlar damm? Byt in den hos oss! Få ett bra pris för den som du kan använda till en nyare modell eller en reparation. Bra för både plånboken och planeten.</p>
-          <Link to="/kontakt" className="cta-button secondary" data-animate>Få en värdering</Link>
+          <Link to="/vardering" className="cta-button secondary" data-animate>Få en värdering</Link>
         </div>
       </section>
     </>

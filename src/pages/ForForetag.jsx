@@ -4,8 +4,6 @@ import { ShieldCheck, ChartLineUp, HardDrives, Coffee, FileText, Handshake, Arro
 import './ForForetag.css';
 
 const ForForetag = () => {
-  // Tog bort useState eftersom vi inte längre behöver hantera expandering av kategorier
-
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -25,7 +23,6 @@ const ForForetag = () => {
     return () => elementsToAnimate.forEach((el) => observer.unobserve(el));
   }, []);
 
-  // Förenklad lista med erbjudanden (utan underkategorier)
   const offers = [
     {
       id: 'hardware',
@@ -47,6 +44,9 @@ const ForForetag = () => {
     }
   ];
 
+  // Denna länk skickar användaren direkt till bokningen med "IT-Konsultation för Företag" förvalt
+  const consultationLink = "/boka?autoSelect=konsultation_foretag";
+
   return (
     <div className="for-foretag-page">
       {/* ===== SEKTION 1: HERO ===== */}
@@ -59,7 +59,8 @@ const ForForetag = () => {
             Din teknik ska arbeta för dig, inte mot dig. Från små företag till större organisationer – vi är er dedikerade IT-partner som ser till att era system alltid fungerar.
           </p>
           <div className="hero-buttons">
-            <Link to="/kontakt" className="cta-button">Boka konsultation</Link>
+            {/* UPPDATERAD LÄNK HÄR */}
+            <Link to={consultationLink} className="cta-button">Boka konsultation</Link>
             <a href="#erbjudande" className="cta-button tertiary">Se vårt erbjudande</a>
           </div>
         </div>
@@ -84,7 +85,7 @@ const ForForetag = () => {
         </div>
       </section>
 
-      {/* ===== SEKTION 3: FÖRENKLAT ERBJUDANDE (NY KOD HÄR) ===== */}
+      {/* ===== SEKTION 3: FÖRENKLAT ERBJUDANDE ===== */}
       <section id="erbjudande" className="content-section offer-overview-section">
         <div className="container">
           <h2 data-animate>Helhetslösningar för moderna företag</h2>
@@ -103,7 +104,8 @@ const ForForetag = () => {
                   <h3>{offer.title}</h3>
                   <p>{offer.desc}</p>
                   <div className="card-divider"></div>
-                  <Link to="/kontakt" className="offer-link">
+                  {/* UPPDATERAD LÄNK HÄR OCKSÅ FÖR ATT MINSKA FRIKTION */}
+                  <Link to={consultationLink} className="offer-link">
                     Diskutera lösning <ArrowRight size={18} />
                   </Link>
                 </div>
@@ -157,7 +159,8 @@ const ForForetag = () => {
           <p data-animate>
             Låt oss visa er hur ett partnerskap med Teknikhuset kan frigöra tid, öka er produktivitet och ge er den sinnesro som krävs för att fokusera på er kärnverksamhet. Boka ett kostnadsfritt och förutsättningslöst möte idag.
           </p>
-          <Link to="/kontakt" className="cta-button secondary" data-animate>Boka konsultation</Link>
+          {/* UPPDATERAD LÄNK HÄR */}
+          <Link to={consultationLink} className="cta-button secondary" data-animate>Boka konsultation</Link>
         </div>
       </section>
     </div>

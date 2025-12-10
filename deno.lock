@@ -20,6 +20,7 @@
         "npm:eslint-plugin-react-refresh@~0.4.22",
         "npm:eslint@^9.36.0",
         "npm:globals@^16.4.0",
+        "npm:googleapis@167",
         "npm:lucide-react@0.546",
         "npm:phosphor-react@^1.4.1",
         "npm:react-dom@^19.1.1",

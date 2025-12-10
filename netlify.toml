@@ -13,3 +13,6 @@
 
 [dev]
     functions = "netlify/functions"
+
+[functions."sendFollowUpSms"]
+  schedule = "0 10 * * *"

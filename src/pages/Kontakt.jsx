@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Eye, Leaf, Coffee, MapPin, Instagram } from 'lucide-react';
+import { ShieldCheck, Eye, Leaf, Coffee, MapPin, Instagram, AlertCircle, CheckCircle, Facebook } from 'lucide-react';
 import './Kontakt.css';
 
 // Egen TikTok-ikonkomponent (oförändrad)
 const TikTokIcon = () => (
-    <svg xmlns="http://www.w.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-2.43.05-4.84-.95-6.43-2.8-1.59-1.87-2.32-4.35-2.2-6.87.15-2.86 1.79-5.45 4.15-6.73 1.05-.57 2.24-.89 3.48-.96.02 1.48-.04 2.96-.04 4.44-.99.32-2.15.52-3.02.97-1.07.55-1.95 1.36-2.52 2.37-.58 1.02-.85 2.22-.81 3.43.04 1.09.36 2.15.93 3.07.62.98 1.54 1.72 2.63 2.15.97.38 2.04.46 3.08.22.99-.22 1.93-.74 2.63-1.44.7-.71 1.1-1.65 1.18-2.69.03-1.18.01-2.37.01-3.55v-7.68c-.69.02-1.38.05-2.07.09-1.48.1-2.93.38-4.32.96v-4.04c1.51-.41 3.03-.7 4.56-.78.05-.22.1-.43.14-.64.13-1.05.31-2.1.48-3.15.17-.99.36-1.99.53-2.98.02-.12.03-.23.05-.35z" /></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-2.43.05-4.84-.95-6.43-2.8-1.59-1.87-2.32-4.35-2.2-6.87.15-2.86 1.79-5.45 4.15-6.73 1.05-.57 2.24-.89 3.48-.96.02 1.48-.04 2.96-.04 4.44-.99.32-2.15.52-3.02.97-1.07.55-1.95 1.36-2.52 2.37-.58 1.02-.85 2.22-.81 3.43.04 1.09.36 2.15.93 3.07.62.98 1.54 1.72 2.63 2.15.97.38 2.04.46 3.08.22.99-.22 1.93-.74 2.63-1.44.7-.71 1.1-1.65 1.18-2.69.03-1.18.01-2.37.01-3.55v-7.68c-.69.02-1.38.05-2.07.09-1.48.1-2.93.38-4.32.96v-4.04c1.51-.41 3.03-.7 4.56-.78.05-.22.1-.43.14-.64.13-1.05.31-2.1.48-3.15.17-.99.36-1.99.53-2.98.02-.12.03-.23.05-.35z" /></svg>
 );
 
-// === ÄNDRING 1: Byt ut bildsökvägar mot videosökvägar ===
 const storeFeatures = [
   { id: 'lounge', title: 'Kundlounge', description: 'Arbeta i lugn och ro med en kopp kaffe medan vi tar hand om din enhet.', videoSrc: '/videos/butik-lounge.mp4' },
   { id: 'workshop', title: 'Öppen Verkstad', description: 'Följ arbetet och se vår expertis med egna ögon – vi har inget att dölja.', videoSrc: '/videos/butik-verkstad.mp4' },
@@ -16,12 +15,48 @@ const storeFeatures = [
 
 const Kontakt = () => {
   const [activeTab, setActiveTab] = useState(storeFeatures[0].id);
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
+  const [status, setStatus] = useState(null); // 'loading', 'success', 'error'
+  const [errorMessage, setErrorMessage] = useState('');
+  
   const activeFeature = storeFeatures.find(feature => feature.id === activeTab);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('loading');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('/.netlify/functions/sendContactForm', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Något gick fel');
+      }
+
+      setStatus('success');
+      setFormData({ name: '', email: '', phone: '', message: '' });
+      
+      // Göm meddelandet efter 5 sekunder
+      setTimeout(() => setStatus(null), 5000);
+    } catch (error) {
+      setStatus('error');
+      setErrorMessage(error.message);
+    }
+  };
 
   return (
     <>
       <section className="om-oss-hero">
-        {/* ... oförändrad hero ... */}
         <div className="hero-overlay"></div>
         <div className="container">
           <div className="om-oss-hero-content">
@@ -31,8 +66,7 @@ const Kontakt = () => {
         </div>
       </section>
 
-      <section className="content-section light-bg-section">
-        {/* ... oförändrade hörnstenar ... */}
+      <section id="filosofi" className="content-section light-bg-section">
         <div className="container">
           <div className="small-container"><h2>Våra Fyra Hörnstenar</h2></div>
           <div className="pillars-grid">
@@ -54,14 +88,13 @@ const Kontakt = () => {
             <div className="store-tabs">{storeFeatures.map((feature) => (<button key={feature.id} className={`tab-button ${activeTab === feature.id ? 'active' : ''}`} onClick={() => setActiveTab(feature.id)}>{feature.title}</button>))}</div>
             <div className="store-content">
               <div className="store-image-container">
-                {/* === ÄNDRING 2: Byt ut <img> mot <video> === */}
                 <video
-                  key={activeFeature.videoSrc} // Viktigt för att videon ska laddas om korrekt
-                  className="store-media" // Bytte namn för tydlighetens skull
+                  key={activeFeature.videoSrc}
+                  className="store-media"
                   autoPlay
                   loop
                   muted
-                  playsInline // Förhindrar helskärm på iOS
+                  playsInline
                 >
                   <source src={activeFeature.videoSrc} type="video/mp4" />
                   Your browser does not support the video tag.
@@ -74,7 +107,6 @@ const Kontakt = () => {
       </section>
 
       <section className="content-section premium-neutral-section">
-         {/* ... oförändrad kontaktsektion ... */}
         <div className="container">
           <div className="contact-grid">
             <div className="contact-column">
@@ -91,18 +123,89 @@ const Kontakt = () => {
             <div className="contact-column" id="kontakt-formular">
               <h2>Ta Kontakt</h2>
               <p className="contact-intro">Frågor eller specifika ärenden? Fyll i formuläret så återkommer vi. Du kan också nå oss på <a href="mailto:team@teknikhusetkalmar.se">team@teknikhusetkalmar.se</a> eller på telefon <a href="tel:+46761723014">076-172 30 14</a>.</p>
-              <form className="contact-form">
-                <div className="form-group"><label htmlFor="name">Ditt Namn</label><input type="text" id="name" name="name" required /></div>
-                <div className="form-group"><label htmlFor="email">Din E-post</label><input type="email" id="email" name="email" required /></div>
-                <div className="form-group"><label htmlFor="phone">Telefonnummer (valfritt)</label><input type="tel" id="phone" name="phone" /></div>
-                <div className="form-group"><label htmlFor="message">Meddelande</label><textarea id="message" name="message" rows="5" required></textarea></div>
-                <button type="submit" className="cta-button secondary">Skicka Meddelande</button>
+              
+              {status === 'success' && (
+                <div className="form-alert success">
+                  <CheckCircle size={20} />
+                  <div>
+                    <strong>Tack!</strong>
+                    <p>Din förfrågan har skickats. Vi återkommer inom kort.</p>
+                  </div>
+                </div>
+              )}
+              
+              {status === 'error' && (
+                <div className="form-alert error">
+                  <AlertCircle size={20} />
+                  <div>
+                    <strong>Något gick fel</strong>
+                    <p>{errorMessage}</p>
+                  </div>
+                </div>
+              )}
+
+              <form className="contact-form" onSubmit={handleFormSubmit}>
+                <div className="form-group">
+                  <label htmlFor="name">Ditt Namn</label>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required 
+                    disabled={status === 'loading'}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="email">Din E-post</label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required 
+                    disabled={status === 'loading'}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="phone">Telefonnummer (valfritt)</label>
+                  <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    disabled={status === 'loading'}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="message">Meddelande</label>
+                  <textarea 
+                    id="message" 
+                    name="message" 
+                    rows="5" 
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required 
+                    disabled={status === 'loading'}
+                  ></textarea>
+                </div>
+                <button 
+                  type="submit" 
+                  className="cta-button secondary"
+                  disabled={status === 'loading'}
+                >
+                  {status === 'loading' ? 'Skickar...' : 'Skicka Meddelande'}
+                </button>
               </form>
               <div className="social-follow">
                 <h4>Följ vår resa</h4>
                 <div className="social-icons">
                   <a href="https://instagram.com/teknikhuset.kalmar" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram /></a>
                   <a href="https://tiktok.com/@teknikhuset.kalmar" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon /></a>
+                  <a href="https://www.facebook.com/people/Teknikhuset-Kalmar/61584528936727/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Facebook /></a>
                 </div>
               </div>
             </div>

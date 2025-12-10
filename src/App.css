@@ -424,7 +424,11 @@ footer {
   }
 }
 
-/* ===== MEGAMENU STYLES ===== */
+
+
+
+/* ===== MEGAMENU STYLES & NAVIGATION ===== */
+
 /* ===== NAVIGATION - DESKTOP ===== */
 nav {
   display: none;
@@ -536,7 +540,7 @@ nav {
   transform: rotate(90deg);
 }
 
-/* Desktop Megamenu */
+/* Desktop Megamenu Container */
 .megamenu {
   position: absolute;
   top: calc(100% + 15px);
@@ -552,6 +556,7 @@ nav {
   z-index: 2000;
   animation: megamenuSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(212, 175, 55, 0.1);
+  overflow: hidden; /* Viktigt för att scrollbaren inte ska sticka ut */
 }
 
 @keyframes megamenuSlideIn {
@@ -580,13 +585,39 @@ nav {
   z-index: -1;
 }
 
+/* --- SCROLLABLE CONTENT AREA --- */
 .megamenu-content {
-  padding: 20px;
+  padding: 20px 10px 20px 20px; /* Mindre padding höger för scrollbar */
   display: flex;
   flex-direction: column;
   gap: 12px;
+  
+  /* Scroll logic */
+  max-height: 60vh; /* Maxhöjd 60% av skärmen */
+  overflow-y: auto; /* Aktivera scroll vid behov */
+  overscroll-behavior: contain; /* Stoppa scroll-chaining till bakgrunden */
 }
 
+/* --- Premium Scrollbar Styles (Chrome/Safari/Edge) --- */
+.megamenu-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.megamenu-content::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 15px 0; /* Marginal så scrollbaren inte slår i top/botten */
+}
+
+.megamenu-content::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.3); /* Diskret guldton */
+  border-radius: 10px;
+}
+
+.megamenu-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.6); /* Starkare guld vid hover */
+}
+
+/* --- Megamenu Items --- */
 .megamenu-item {
   display: flex;
   align-items: center;
@@ -599,6 +630,7 @@ nav {
   position: relative;
   overflow: hidden;
   background: rgba(212, 175, 55, 0.02);
+  flex-shrink: 0; /* Förhindrar att items krymper konstigt */
 }
 
 .megamenu-item::before {
@@ -683,12 +715,17 @@ nav {
     position: fixed;
     top: 0;
     right: 0;
-    width: 80%;
-    max-width: 300px;
+    width: 85%; /* Lite bredare för bättre läsbarhet */
+    max-width: 350px;
     height: 100vh;
     background-color: #fff;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
     z-index: 1000;
+    
+    /* --- HÄR ÄR FIXEN FÖR SCROLL --- */
+    overflow-y: auto; /* Tillåter scroll när innehållet är längre än skärmen */
+    -webkit-overflow-scrolling: touch; /* Ger mjuk "bounce" scroll på iPhone */
+    padding-bottom: 80px; /* Extra utrymme i botten så sista länken inte hamnar bakom webbläsarens menyrad */
   }
 
   .mobile-nav-header {
@@ -697,6 +734,10 @@ nav {
     align-items: center;
     height: 70px;
     padding: 0 30px;
+    position: sticky; /* Gör krysset stillastående när man scrollar */
+    top: 0;
+    background: #fff;
+    z-index: 10;
   }
 
   .mobile-menu-close {
@@ -731,6 +772,7 @@ nav {
     padding: 20px 0;
     width: 100%;
     display: block;
+    font-size: 1.1em; /* Lite större text på mobil för enklare klick */
   }
 }
 
@@ -752,10 +794,10 @@ nav {
   color: var(--text-color);
   cursor: pointer;
   font-weight: 500;
-  font-size: 1em;
+  font-size: 1.1em; /* Matchar övriga länkar */
   width: 100%;
   text-align: left;
-  padding: 0;
+  padding: 20px 0; /* Samma padding som vanliga länkar */
   font-family: var(--font-family);
   display: flex;
   justify-content: space-between;
@@ -768,7 +810,10 @@ nav {
   font-size: 1.2em;
 }
 
-.megamenu-item-mobile:hover .megamenu-toggle-mobile::after {
+/* Eftersom hover kan vara buggigt på touch, sätter vi en hög max-höjd när man interagerar */
+.megamenu-item-mobile:hover .megamenu-toggle-mobile::after,
+.megamenu-item-mobile:active .megamenu-toggle-mobile::after,
+.megamenu-item-mobile:focus-within .megamenu-toggle-mobile::after {
   transform: rotate(90deg);
 }
 
@@ -780,11 +825,15 @@ nav {
   border-radius: 8px;
   overflow: hidden;
   max-height: 0;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.4s ease-in-out; /* Lite mjukare transition */
 }
 
-.megamenu-item-mobile:hover .megamenu-mobile {
-  max-height: 500px;
+/* Vi använder :focus-within också för bättre mobilsupport */
+.megamenu-item-mobile:hover .megamenu-mobile,
+.megamenu-item-mobile:active .megamenu-mobile,
+.megamenu-item-mobile:focus-within .megamenu-mobile {
+  /* Ökad höjd rejält för att rymma alla 7 punkter + marginal */
+  max-height: 1000px; 
 }
 
 .megamenu-mobile li {
@@ -799,7 +848,7 @@ nav {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 16px 16px; /* Lite större träffyta */
   text-decoration: none;
   color: var(--text-color);
   transition: all 0.3s ease;
@@ -816,9 +865,11 @@ nav {
   flex-shrink: 0;
 }
 
-/* --- Lösning för Sticky Header & Ankar-länkar --- */
+/* --- Sticky Header & Anchor Link Fix --- */
 #hitta-oss,
 #kontakt-formular,
 .scroll-target {
   scroll-margin-top: 100px;
 }
+
+
