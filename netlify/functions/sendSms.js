@@ -57,6 +57,9 @@ export const handler = async (event) => {
     }
 
     // 4. Skicka SMS med Twilio
+    console.log("DEBUG: Sending SMS... Från SendSMS");
+    console.log("DEBUG: Using TWILIO_PHONE_NUMBER:", process.env.TWILIO_PHONE_NUMBER); 
+
     console.log(`Försöker skicka SMS till: ${customerPhone}`);
     await twilioClient.messages.create({
         body: message,

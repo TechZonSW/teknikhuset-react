@@ -66,7 +66,7 @@ const Footer = () => {
           <h4>Kontakt</h4>
           <p>
             <span className="footer-icon"><Phone size={14} /></span>
-            <a href="tel:0480123456"> 0480-123 456</a>
+            <a href="tel:0761723014"> 076-172 30 14</a>
             <br />
 
             <span className="footer-icon"><Mail size={14} /></span>

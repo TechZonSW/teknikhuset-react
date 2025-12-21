@@ -84,6 +84,8 @@ export const handler = async (event) => {
         const welcomeMessage = `Hej ${customerName}! \nVi har nu tagit emot din ${deviceName}. Spåra reparationen med kod ${newRepairCode} på: https://teknikhusetkalmar.se/spara. \nMvh, Teknikhuset Kalmar`;
 
         try {
+            console.log("DEBUG: Sending SMS...från Create");
+            console.log("DEBUG: Using TWILIO_PHONE_NUMBER:", process.env.TWILIO_PHONE_NUMBER); 
             await twilioClient.messages.create({
                 body: welcomeMessage,
                 from: process.env.TWILIO_PHONE_NUMBER,
